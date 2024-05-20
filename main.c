@@ -1,19 +1,17 @@
+
+#define CWUTILS_IMPLEMENT_STRING
+#include "cwstring.h"
+
 #include <stdio.h>
 
-
-#define CW_IMPL
-#include "cwutils.h"
-#undef CW_IMPL
-
 int main() {
-    CwArray* array = cw_array_new(sizeof(int));
+    CwString* file = cw_string_from_file("./cwstring.h");
 
-    for (int i=0;i<4;i++) {
-        void* next = cw_array_push(array);
-        *((int*)(next)) = 4;
+    for (int i=0, col = 0; i<file -> size; i++, col++) {
+        fprintf(stderr, "%c", file -> ptr[i]);
+        // if (col == 16) {
+        //     col = 0;
+        //     fprintf(stderr, "\n");
+        // }
     }
-
-    int* arr = (int*)(array -> ptr);
-
-    fprintf(stderr, "%d\n", arr[3]);
 }

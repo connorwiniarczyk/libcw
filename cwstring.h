@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 typedef struct CwString {
 	uint8_t*  ptr;
@@ -13,14 +15,16 @@ typedef struct CwString {
 CwString* cw_string_new();
 CwString* cw_string_fmt_hex(uint32_t value, int digits);
 CwString* cw_string_fmt_int(uint32_t value, int digits);
+CwString* cw_string_from_file(char* path);
+CwString* cw_string_clone(CwString* self);
 
 void cw_string_free(CwString* self);
-
 int cw_string_push(CwString* self, char c);
 int cw_string_push_front(CwString* self, char c);
-
 int cw_string_append_cstr(CwString* self, char* str);
 int cw_string_prepend_cstr(CwString* self, char* str);
+int cw_string_append_slice(CwString* self, uint8_t* src, size_t size);
+
 
 #endif
 
@@ -36,6 +40,34 @@ CwString* cw_string_new() {
     if (self -> ptr == NULL) return NULL;
 
     return self;
+}
+
+// TODO
+// CwString* cw_string_clone(CwString* self) {
+// 
+// }
+
+CwString* cw_string_from_file(char* path) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) return NULL;
+
+	CwString* self = cw_string_new();
+	if (self == NULL) return NULL;
+
+	char buffer[128];
+	size_t bytes_read;
+	while ((bytes_read = fread(buffer, 1, 128, file)) == 128) {
+    	cw_string_append_slice(self, buffer, bytes_read);
+	}
+
+	if (ferror(file)) {
+    	cw_string_free(self);
+    	fclose(file);
+    	return NULL;
+	}
+
+	cw_string_append_slice(self, buffer, bytes_read);
+	return self;
 }
 
 CwString* cw_string_fmt_hex(uint32_t value, int digits) {
@@ -94,6 +126,10 @@ int cw_string_push_front(CwString* self, char c) {
 
 int cw_string_append_cstr(CwString* self, char* str) {
     while (*str != '\0') cw_string_push(self, *str++);
+}
+
+int cw_string_append_slice(CwString* self, uint8_t* src, size_t size) {
+    for (int i=0;i<size;i++) cw_string_push(self, src[i]);
 }
 
 #endif
