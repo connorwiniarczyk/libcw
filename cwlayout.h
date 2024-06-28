@@ -1,7 +1,7 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
-#include <raylib/raylib.h>
+#include <raylib.h>
 #include <stdint.h>
 
 Rectangle rectangle_pad(Rectangle* self, uint16_t padding_x, uint16_t padding_y);
@@ -51,7 +51,10 @@ Rectangle rectangle_split_bottom(Rectangle* self, uint16_t size) {
 Rectangle rectangle_split_left(Rectangle* self, uint16_t size) {
 	Rectangle output = *self;
 	output.width = size;
+
 	self -> x += size;
+	self -> width -= size;
+
 	return output;
 }
 

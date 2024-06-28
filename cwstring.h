@@ -54,7 +54,7 @@ CwString* cw_string_from_file(char* path) {
 	CwString* self = cw_string_new();
 	if (self == NULL) return NULL;
 
-	char buffer[128];
+	uint8_t buffer[128];
 	size_t bytes_read;
 	while ((bytes_read = fread(buffer, 1, 128, file)) == 128) {
     	cw_string_append_slice(self, buffer, bytes_read);
@@ -99,7 +99,7 @@ CwString* cw_string_fmt_int(uint32_t value, int digits) {
 void cw_string_free(CwString* self) {
   	free(self -> ptr);
   	free(self);
-    }
+}
 
 int cw_string_push(CwString* self, char c) {
     if (self -> size >= self -> capacity) {
@@ -109,6 +109,7 @@ int cw_string_push(CwString* self, char c) {
 
     self -> ptr[self -> size] = c;
     self -> size += 1;
+    return 0;
 }
 
 int cw_string_push_front(CwString* self, char c) {
@@ -126,10 +127,12 @@ int cw_string_push_front(CwString* self, char c) {
 
 int cw_string_append_cstr(CwString* self, char* str) {
     while (*str != '\0') cw_string_push(self, *str++);
+    return 0;
 }
 
 int cw_string_append_slice(CwString* self, uint8_t* src, size_t size) {
-    for (int i=0;i<size;i++) cw_string_push(self, src[i]);
+    for (size_t i=0;i<size;i++) cw_string_push(self, (char)src[i]);
+    return 0;
 }
 
 #endif
