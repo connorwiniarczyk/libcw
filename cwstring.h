@@ -142,8 +142,8 @@ int cwstring_append_cstr(CwString* self, char* str) {
     return 0;
 }
 
-int cw_string_append_slice(CwString* self, uint8_t* src, size_t size) {
-    for (size_t i=0;i<size;i++) cw_string_push(self, (char)src[i]);
+int cwstring_append_slice(CwString* self, uint8_t* src, size_t size) {
+    for (size_t i=0;i<size;i++) cwstring_push(self, (char)src[i]);
     return 0;
 }
 

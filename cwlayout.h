@@ -15,7 +15,7 @@ Rectangle rectangle_split_right(Rectangle* self, uint16_t size);
 #endif
 
 
-#ifdef CWUTILS_IMPLEMENT_LAYOUT
+#ifdef CWLAYOUT_IMPLEMENTATION
 
 Rectangle rectangle_pad(Rectangle* self, uint16_t padding_x, uint16_t padding_y) {
 	Rectangle output = {
