@@ -21,12 +21,12 @@ CwString* cwstring_clone(CwString* self);
 void cwstring_free(CwString* self);
 int cwstring_push(CwString* self, char c);
 int cwstring_push_front(CwString* self, char c);
-int cwstring_append_cstr(CwString* self, char* str);
+int cwstring_append_cstr(CwString* self, const char* str);
 int cwstring_prepend_cstr(CwString* self, char* str);
 int cwstring_append_slice(CwString* self, uint8_t* src, size_t size);
+int cwstring_clear(CwString* self);
 
 int cwstring_write_to_file(CwString* self, char* path);
-
 
 #endif
 
@@ -137,13 +137,18 @@ int cwstring_push_front(CwString* self, char c) {
     return 0;
 }
 
-int cwstring_append_cstr(CwString* self, char* str) {
+int cwstring_append_cstr(CwString* self, const char* str) {
     while (*str != '\0') cwstring_push(self, *str++);
     return 0;
 }
 
 int cwstring_append_slice(CwString* self, uint8_t* src, size_t size) {
     for (size_t i=0;i<size;i++) cwstring_push(self, (char)src[i]);
+    return 0;
+}
+
+int cwstring_clear(CwString* self) {
+    self -> size = 0;
     return 0;
 }
 
