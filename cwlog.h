@@ -22,7 +22,6 @@ int cwlog(CwLogger* self, enum CwLogLevel level, const char* message);
 
 #endif
 
-
 #ifdef CWLOG_IMPLEMENTATION
 
 int cwlog(CwLogger* self, enum CwLogLevel level, const char* message) {

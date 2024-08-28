@@ -25,6 +25,7 @@ int cwstring_append_cstr(CwString* self, const char* str);
 int cwstring_prepend_cstr(CwString* self, char* str);
 int cwstring_append_slice(CwString* self, uint8_t* src, size_t size);
 int cwstring_clear(CwString* self);
+void cwstring_add_terminator(CwString* self);
 
 int cwstring_write_to_file(CwString* self, char* path);
 
@@ -41,13 +42,10 @@ CwString* cwstring_new() {
     self -> ptr = malloc(self -> capacity);
     if (self -> ptr == NULL) return NULL;
 
+    for (int i=0;i<self -> capacity;i++) self -> ptr[i] = '\0';
+
     return self;
 }
-
-// TODO
-// CwString* cwstring_clone(CwString* self) {
-// 
-// }
 
 CwString* cwstring_from_file(char* path) {
     FILE* file = fopen(path, "rb");
@@ -150,6 +148,12 @@ int cwstring_append_slice(CwString* self, uint8_t* src, size_t size) {
 int cwstring_clear(CwString* self) {
     self -> size = 0;
     return 0;
+}
+
+void cwstring_add_terminator(CwString* self) {
+	if (self -> ptr[self -> size] != '\0') {
+		cwstring_push(self, '\0');
+	}
 }
 
 #endif
