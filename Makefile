@@ -1,3 +1,4 @@
+prefix = $(HOME)/.local
 MAKEFLAGS += --no-print-directory
 
 cc_flags += -I include
@@ -27,3 +28,13 @@ clean:
 	@printf "CLEAN\n"
 	@rm -rf build
 .PHONY: clean
+
+install: build/libcw.a
+	@printf "INSTALLING\n"
+	@mkdir -p $(prefix)/lib
+	@cp $< $(prefix)/lib
+
+	@mkdir -p $(prefix)/include
+	@mkdir -p $(prefix)/include/cwutils
+	@cp -r include $(prefix)
+
