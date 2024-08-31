@@ -10,6 +10,7 @@ srcs += src/cwarray.c
 srcs += src/cwstring.c
 srcs += src/cwlog.c
 srcs += src/cwlayout.c
+srcs += src/cwfuture.c
 objs += $(srcs:src/%.c=build/%.o)
 
 $(info $(objs))

@@ -33,3 +33,10 @@ void* cwarray_demote(CwArray* self) {
     free(self);
     return output;
 }
+
+CwArray* cwarray_free(CwArray* self) {
+    if (self -> ptr) free(self -> ptr);
+
+    free(self);
+    return NULL;
+}

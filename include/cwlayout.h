@@ -1,7 +1,15 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
-#include <raylib.h>
+#ifndef RAYLIB_H
+typedef struct Rectangle {
+    float x;
+    float y;
+    float width;
+    float height;
+} Rectangle;
+#endif
+
 #include <stdint.h>
 
 Rectangle rectangle_pad(Rectangle* self, uint16_t padding_x, uint16_t padding_y);
