@@ -2,36 +2,27 @@
 #define CWFUTURE_H
 
 #include <stdint.h>
-#include <cwarray.h>
+#include "cwarray.h"
 
 typedef size_t CwFutureId;
-
-enum CwFutureStatus {
-    CWFUTURE_RUNNING,
-    CWFUTURE_PAUSED,
-    CWFUTURE_SUCCEEDED,
-    CWFUTURE_FAILED,
-};
+struct CwFuture;
+typedef int (PollFn)(int pc, void* data, struct CwFuture* self);
 
 typedef struct CwFuture {
-    enum CwFutureStatus status;
-    int (*poll)(struct CwFuture*);
+    int pc; // program counter
+    PollFn* poll;
     void* data;
 
-    // an array of futures awaiting this one,
-    // to be resumed once this future has finished
-    CwArray* resume_on_finish;
+    CwArray* on_complete;
 } CwFuture;
 
-typedef struct CwEventHandler {
-	size_t event;
-	int (*trigger)(void*);
-	void* data;
-} CwEventHandler;
+CwFuture* cwfuture_new(PollFn* poll, void* data);
+void cwfuture_poll(CwFuture* self);
+void cwfuture_free(CwFuture* self);
+void cwfuture_on_complete(CwFuture* self, void(*func)(void*), void* data);
 
 typedef struct CwEventLoop {
 	CwArray* futures;
-	CwArray* handlers;
 } CwEventLoop;
 
 

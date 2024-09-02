@@ -33,9 +33,10 @@ clean:
 install: build/libcw.a
 	@printf "INSTALLING\n"
 	@mkdir -p $(prefix)/lib
+	@rm $(prefix)/lib/libcw.a
 	@cp $< $(prefix)/lib
 
 	@mkdir -p $(prefix)/include
 	@mkdir -p $(prefix)/include/cwutils
-	@cp -r include $(prefix)
+	@rsync -a include/ $(prefix)/include/cwutils/
 
