@@ -32,6 +32,7 @@ void cwfuture_poll(CwFuture* self) {
 }
 
 void cwfuture_free(CwFuture* self) {
+    if (self -> on_complete) cwarray_free(self -> on_complete);
     free(self);
 }
 
