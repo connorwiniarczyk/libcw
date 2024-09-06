@@ -1,12 +1,23 @@
 #include <cwfuture.h>
 #include <cwarray.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef void (HandlerFn)(void* data);
 typedef struct Handler {
     HandlerFn* fn;
     void* data;
 } Handler;
+
+static void handler_call(void* data) {
+	Handler* self = (Handler*)(data);
+	(self -> fn)(self -> data);
+}
+
+static void handler_init(Handler* self, HandlerFn* fn, void* data) {
+    self -> fn = fn;
+    self -> data = data;
+}
 
 CwFuture* cwfuture_new(PollFn* poll, void* data) {
     CwFuture* self = malloc(sizeof(CwFuture));
@@ -20,29 +31,67 @@ CwFuture* cwfuture_new(PollFn* poll, void* data) {
     return self;
 }
 
-void cwfuture_poll(CwFuture* self) {
-    self -> pc = self -> poll(self -> pc, self -> data, self);
-
-    if (self -> pc == 0 && self -> on_complete) {
-		for (size_t i=0; i<self -> on_complete -> size; i++) {
-    		Handler* h = cwarray_get(self -> on_complete, i);
-    		h -> fn(h -> data);
-		}
+int cwfuture_poll(CwFuture* self) {
+    if (self -> timeout) {
+        if (cwfuture_poll(self -> timeout) == 0) {
+            self -> pc = CWFUTURE_FAILURE;
+            return self -> pc;
+        }
     }
+
+    if (self -> awaiting.future) {
+        int pc = cwfuture_poll(self -> awaiting.future);
+        if (pc > 0) return pc;
+
+        else if (pc == CWFUTURE_SUCCESS) self -> pc += 1;
+        else if (pc == CWFUTURE_FAILURE) self -> pc = self -> awaiting.catch;
+
+        self -> awaiting.future = cwfuture_free(self -> awaiting.future);
+        return self -> pc;
+    }
+
+    self -> pc = self -> poll(self -> pc, self -> data, self);
+    if (self -> pc == 0 && self -> on_success) {
+        cwarray_for_each(self -> on_success, handler_call);
+    }
+
+    return self -> pc;
 }
 
-void cwfuture_free(CwFuture* self) {
-    if (self -> on_complete) cwarray_free(self -> on_complete);
+void cwfuture_abort_on(CwFuture* self, CwFuture* target) {
+    self -> timeout = target;
+}
+
+
+
+int cwfuture_await(CwFuture* self, CwFuture* target, int catch) {
+    self -> awaiting.future = target;
+    self -> awaiting.catch = catch;
+    return self -> pc;
+}
+
+CwFuture* cwfuture_free(CwFuture* self) {
+    if (self -> timeout) cwfuture_free(self -> timeout);
+
+    if (self -> on_cleanup) {
+        cwarray_for_each(self -> on_cleanup, handler_call);
+        self -> on_cleanup = cwarray_free(self -> on_cleanup);
+    }
+
+    if (self -> on_success) cwarray_free(self -> on_success);
+
     free(self);
+    return NULL;
 }
 
+void cwfuture_on_cleanup(CwFuture* self, HandlerFn* fn, void* data) {
+    if (self -> on_cleanup == NULL) self -> on_cleanup = cwarray_new(sizeof(Handler));
+    handler_init(cwarray_push(self -> on_cleanup), fn, data);
+}
 
-void cwfuture_on_complete(CwFuture* self, HandlerFn* fn, void* data) {
-    if (self -> on_complete == NULL) self -> on_complete = cwarray_new(sizeof(Handler));
-
-    Handler* next = (Handler*)(cwarray_push(self -> on_complete));
-    next -> fn = fn;
-    next -> data = data;
+void cwfuture_on_success(CwFuture* self, HandlerFn* fn, void* data) {
+    if (self -> on_success == NULL) self -> on_success = cwarray_new(sizeof(Handler));
+    handler_init(cwarray_push(self -> on_success), fn, data);
 }
 
 CwEventLoop* cweventloop_free(CwEventLoop* self) {

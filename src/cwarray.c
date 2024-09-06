@@ -40,3 +40,9 @@ CwArray* cwarray_free(CwArray* self) {
     free(self);
     return NULL;
 }
+
+void cwarray_for_each(CwArray* self, void (*func)(void*)) {
+    for (size_t i=0; i<self -> size; i++) {
+        func(cwarray_get(self, i));
+    }
+}

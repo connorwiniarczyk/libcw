@@ -1,16 +1,22 @@
 prefix = $(HOME)/.local
 MAKEFLAGS += --no-print-directory
 
+target ?= LINUX
+
 cc_flags += -I include
+cc_flags += -I include/cwutils
 cc_flags += -g
 cc_flags += -O2
 cc_flags += -Wall -Wextra -Werror
+cc_flags += -D$(target)
 
 srcs += src/cwarray.c
 srcs += src/cwstring.c
 srcs += src/cwlog.c
 srcs += src/cwlayout.c
 srcs += src/cwfuture.c
+srcs += src/cwsleep.c
+srcs += src/cwtimer.c
 objs += $(srcs:src/%.c=build/%.o)
 
 $(info $(objs))
@@ -38,5 +44,5 @@ install: build/libcw.a
 
 	@mkdir -p $(prefix)/include
 	@mkdir -p $(prefix)/include/cwutils
-	@rsync -a include/ $(prefix)/include/cwutils/
+	@rsync -a include/cwutils/ $(prefix)/include/cwutils/
 

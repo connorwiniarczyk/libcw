@@ -18,6 +18,8 @@ void* cwarray_demote(CwArray* self);
 
 CwArray* cwarray_free(CwArray* self);
 
+void cwarray_for_each(CwArray* self, void (*func)(void*));
+
 #endif
 
 // #ifdef CWARRAY_IMPLEMENTATION
