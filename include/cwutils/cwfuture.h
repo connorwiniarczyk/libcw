@@ -22,7 +22,7 @@ typedef struct CwFuture {
     CwArray* on_success;
     CwArray* on_cleanup;
 
-    struct { struct CwFuture* future; int catch; } awaiting;
+    struct { struct CwFuture* future; int catch; } child;
     struct CwFuture* timeout;
 } CwFuture;
 
@@ -30,21 +30,23 @@ CwFuture* cwfuture_new(PollFn* poll, void* data);
 CwFuture* cwfuture_free(CwFuture* self);
 
 int cwfuture_poll(CwFuture* self);
+int cwfuture_block_on(CwFuture* self);
 
 void cwfuture_on_success(CwFuture* self, void(*func)(void*), void* data);
 void cwfuture_on_cleanup(CwFuture* self, void(*func)(void*), void* data);
-// void cwfuture_on_fail(CwFuture* self, void(*func)(void*), void* data);
 
-int cwfuture_await(CwFuture* self, CwFuture* target, int catch);
+int cwfuture_await(CwFuture* self, CwFuture* target);
+int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch);
 void cwfuture_abort_on(CwFuture* self, CwFuture* target);
 
-typedef struct CwEventLoop {
-	CwArray* futures;
-} CwEventLoop;
+typedef struct CwFutureList { CwArray inner; } CwFutureList;
 
+CwFutureList* cwfuture_list_new();
+void cwfuture_list_push(CwFutureList* self, CwFuture* item);
+CwFuture* cwfuture_list_get(CwFutureList* self, size_t index);
 
-CwEventLoop* cweventloop_new();
-CwFutureId cweventloop_register(CwEventLoop* self, int (*poll)(CwFuture*), void* data);
-void cweventloop_update(CwEventLoop* self);
+CwFuture* cwfuture_race(CwFutureList* list);
+CwFuture* cwfuture_all(CwFutureList* list);
+CwFuture* cwfuture_sequence(CwFutureList* list);
 
 #endif

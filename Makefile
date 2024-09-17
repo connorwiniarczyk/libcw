@@ -17,9 +17,15 @@ srcs += src/cwlayout.c
 srcs += src/cwfuture.c
 srcs += src/cwsleep.c
 srcs += src/cwtimer.c
-objs += $(srcs:src/%.c=build/%.o)
 
-$(info $(objs))
+
+canopen = true
+ifdef canopen
+srcs += src/cwcanopen.c
+cc_flags += -I $(HOME)/.local/include
+endif
+
+objs += $(srcs:src/%.c=build/%.o)
 
 build/libcw.a: clean $(objs)
 	@mkdir -p build

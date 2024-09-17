@@ -39,14 +39,14 @@ int cwfuture_poll(CwFuture* self) {
         }
     }
 
-    if (self -> awaiting.future) {
-        int pc = cwfuture_poll(self -> awaiting.future);
+    if (self -> child.future) {
+        int pc = cwfuture_poll(self -> child.future);
         if (pc > 0) return pc;
 
         else if (pc == CWFUTURE_SUCCESS) self -> pc += 1;
-        else if (pc == CWFUTURE_FAILURE) self -> pc = self -> awaiting.catch;
+        else if (pc == CWFUTURE_FAILURE) self -> pc = self -> child.catch;
 
-        self -> awaiting.future = cwfuture_free(self -> awaiting.future);
+        self -> child.future = cwfuture_free(self -> child.future);
         return self -> pc;
     }
 
@@ -58,16 +58,26 @@ int cwfuture_poll(CwFuture* self) {
     return self -> pc;
 }
 
+int cwfuture_block_on(CwFuture* self) {
+    while (cwfuture_poll(self) > 0);
+    int output = self -> pc;
+    cwfuture_free(self);
+    return output;
+}
+
 void cwfuture_abort_on(CwFuture* self, CwFuture* target) {
     self -> timeout = target;
 }
 
 
-
-int cwfuture_await(CwFuture* self, CwFuture* target, int catch) {
-    self -> awaiting.future = target;
-    self -> awaiting.catch = catch;
+int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch) {
+    self -> child.future = target;
+    self -> child.catch = catch;
     return self -> pc;
+}
+
+int cwfuture_await(CwFuture* self, CwFuture* target) {
+    return cwfuture_await_with_catch(self, target, -1);
 }
 
 CwFuture* cwfuture_free(CwFuture* self) {
@@ -94,39 +104,33 @@ void cwfuture_on_success(CwFuture* self, HandlerFn* fn, void* data) {
     handler_init(cwarray_push(self -> on_success), fn, data);
 }
 
-CwEventLoop* cweventloop_free(CwEventLoop* self) {
-    if (self == NULL) return NULL;
-    if (self -> futures) cwarray_free(self -> futures);
-
-    free(self);
-    return NULL;
+CwFutureList* cwfuture_list_new() {
+    return (CwFutureList*)(cwarray_new(sizeof(CwFuture*)));
+}
+void cwfuture_list_push(CwFutureList* self, CwFuture* item) {
+   	void* next = cwarray_push(&self -> inner);
+   	*(CwFuture**)(next) = item;
 }
 
-CwEventLoop* cweventloop_new() {
-    CwEventLoop* self = malloc(sizeof(CwEventLoop));
-    if (self == NULL) return NULL;
-
-    *self = (CwEventLoop){0};
-
-    self -> futures = cwarray_new(sizeof(CwFuture));
-    if (self -> futures == NULL) return cweventloop_free(self);
-
-    return self;
+CwFuture* cwfuture_list_get(CwFutureList* self, size_t index) {
+    return *(CwFuture**)(cwarray_get(&self -> inner, index));
 }
 
-// CwFutureId cweventloop_register(CwEventLoop* self, int (*poll)(CwFuture*), void* data) {
-//     CwFuture
-//     CwFuture* next;
+static int poll_race(int pc, void* data, CwFuture* self) {
+    (void)(self);
+    if (pc != 1) return pc;
 
-// }
+    CwFutureList* list = (CwFutureList*)(data);
+    for (size_t i=0; i<list -> inner.size; i++) {
+        int res = cwfuture_poll(cwfuture_list_get(list, i));
+        if (res == 0) return 0; 
+    }
+
+    // else
+    return 1;
+}
 
 
-// void cweventloop_update(CwEventLoop* self) {
-// 	for (size_t i=0;i<self -> futures -> size;i++) {
-//     	CwFuture* current = cwarray_get(self -> futures, i);
-//     	if (current == NULL) continue;
-//     	if (current -> status != CWFUTURE_RUNNING) continue;
-
-//     	(current -> poll)(current);
-// 	}
-// }
+CwFuture* cwfuture_race(CwFutureList* list) {
+	return cwfuture_new(poll_race, list);
+}
