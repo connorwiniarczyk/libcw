@@ -45,7 +45,7 @@ clean:
 install: build/libcw.a
 	@printf "INSTALLING\n"
 	@mkdir -p $(prefix)/lib
-	@rm $(prefix)/lib/libcw.a
+	@rm -f $(prefix)/lib/libcw.a
 	@cp $< $(prefix)/lib
 
 	@mkdir -p $(prefix)/include

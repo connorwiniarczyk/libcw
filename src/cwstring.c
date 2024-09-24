@@ -1,4 +1,4 @@
-#include <cwstring.h>
+#include <cwutils/cwstring.h>
 
 CwString* cwstring_new() {
     CwString* self = malloc(sizeof(CwString));

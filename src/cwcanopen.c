@@ -49,10 +49,10 @@ CwFuture* canopen_init_write_future(CanOpenListener* listener, CanOpenAddress de
 	CwFuture* output = cwfuture_new(poll_transaction, state); 
 
 
-	CwFuture* timeout = cwtimeout_ms(200);
+	CwFuture* timeout = cwtimeout_ms(1000);
 	cwfuture_on_success(timeout, canopen_future_on_abort, listener -> client);
 
-	// cwfuture_abort_on(output, timeout);
+	cwfuture_abort_on(output, timeout);
 	cwfuture_on_cleanup(output, free, state);
 	cwfuture_on_cleanup(output, free, src);
 	return output;
@@ -68,7 +68,7 @@ CwFuture* canopen_init_read_future(CanOpenListener* listener, CanOpenAddress src
 	(void)err;
 	CwFuture* output = cwfuture_new(poll_transaction, state); 
 
-	cwfuture_abort_on(output, cwtimeout_ms(200));
+	cwfuture_abort_on(output, cwtimeout_ms(1000));
 	cwfuture_on_cleanup(output, free, state);
 	return output;
 

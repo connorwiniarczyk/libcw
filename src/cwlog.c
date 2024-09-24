@@ -1,4 +1,4 @@
-#include <cwlog.h>
+#include <cwutils/cwlog.h>
 
 int cwlog(CwLogger* self, enum CwLogLevel level, const char* message) {
     if (self == NULL) return 0;

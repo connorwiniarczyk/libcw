@@ -1,4 +1,4 @@
-#include <cwarray.h>
+#include <cwutils/cwarray.h>
 
 CwArray* cwarray_new(size_t element_size) {
     CwArray* self = malloc(sizeof(CwArray));
