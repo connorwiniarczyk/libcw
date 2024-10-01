@@ -1,4 +1,7 @@
 #include <cwutils/cwarray.h>
+#include <assert.h>
+#include <string.h>
+#include <stdarg.h>
 
 CwArray* cwarray_new(size_t element_size) {
     CwArray* self = malloc(sizeof(CwArray));
@@ -15,6 +18,10 @@ CwArray* cwarray_new(size_t element_size) {
 
 void* cwarray_get(CwArray* self, size_t index) {
 	return self -> ptr + (self -> element_size * index);
+}
+
+size_t cwarray_size(CwArray* self) {
+    return self -> size;
 }
 
 void* cwarray_push(CwArray* self) {
@@ -41,8 +48,46 @@ CwArray* cwarray_free(CwArray* self) {
     return NULL;
 }
 
+CwList* cwlist_new() {
+    return (CwList*)(cwarray_new(sizeof(void*)));
+}
+
+void cwlist_push_many(CwList* self, size_t n, ...) {
+    va_list args;
+    va_start(args, n);
+    for (size_t i=0; i<n; i++) {
+        cwlist_push(self, va_arg(args, void*));
+    }
+    va_end(args);
+}
+
+CwList* cwlist_with_elements(size_t n, ...) {
+    CwList* self = cwlist_new();
+
+    va_list args;
+    va_start(args, n);
+    for (size_t i=0; i<n; i++) {
+        cwlist_push(self, va_arg(args, void*));
+    }
+    va_end(args);
+
+	return self;
+}
+
+void cwlist_push(CwList* self, void* item) {
+    assert(self -> inner.element_size == sizeof(item));
+    memcpy(cwarray_push(&self -> inner), &item, sizeof(item));
+}
+
+void* cwlist_get(CwList* self, size_t index) {
+    if (self -> inner.size < index) return NULL;
+
+    return *(void**)(cwarray_get(&self -> inner, index));
+}
+
 void cwarray_for_each(CwArray* self, void (*func)(void*)) {
     for (size_t i=0; i<self -> size; i++) {
         func(cwarray_get(self, i));
     }
 }
+

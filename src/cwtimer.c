@@ -28,7 +28,19 @@ CwFuture* cwtimeout_ms(int ms) {
     (void)(res);
 
     CwFuture* output = cwfuture_new(poll_timer, remaining);
+    cwfuture_on_cleanup(output, free, remaining);
     return output;
+}
+
+void cwtimeout_init_ms(CwFuture* self, int ms) {
+    pthread_t id;
+    int* remaining = malloc(sizeof(int));
+    *remaining = ms;
+    int res = pthread_create(&id, NULL, timer_thread, remaining);
+    (void)(res);
+
+    cwfuture_init(self, poll_timer, remaining);
+    cwfuture_on_cleanup(self, free, remaining);
 }
 
 #else

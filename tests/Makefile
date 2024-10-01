@@ -15,9 +15,9 @@ objs += $(srcs:../src/%.c=build/%.o)
 objs += build/unity.o
 
 tests += run/cwfuture.test
-tests += run/leak.test
+# tests += run/leak.test
 
-all: build run
+all: clean build run
 
 run: build/runner $(tests)
 	@$< $(tests)

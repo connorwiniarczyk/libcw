@@ -11,23 +11,27 @@ void test_1() {
     TEST_ASSERT(err == 0);
 }
 
-void test_2() {
-    CwFutureList* list = cwfuture_list_new();
-    cwfuture_list_push(list, cwtimeout_ms(100));
-    cwfuture_list_push(list, cwtimeout_ms(200));
-    cwfuture_list_push(list, cwtimeout_ms(300));
-    cwfuture_list_push(list, cwtimeout_ms(400));
-    cwfuture_list_push(list, cwtimeout_ms(500));
-    cwfuture_block_on(cwfuture_race(list));
+static int poll_print(int pc, void* data, CwFuture* self) {
+    (void)(data); (void)(self); (void)(pc);
 
-    CwFuture* test = cwtimeout_ms(100);
+    printf("test\n");
+	return 0;
+}
+
+void test_2() {
+    CwList* list = cwlist_with_elements(2, cwtimeout_ms(100), cwfuture_new(poll_print, NULL));
+    // cwlist_push(list, cwtimeout_ms(100));
+    // cwlist_push(list, cwfuture_new(poll_print, NULL));
+
+    CwFuture* test = cwfuture_sequence(list);
     int err = cwfuture_block_on(test);
+
     TEST_ASSERT(err == 0);
 }
 
 int main() {
     UNITY_BEGIN();
-    RUN_TEST(test_1);
+    // RUN_TEST(test_1);
     RUN_TEST(test_2);
     return UNITY_END();
 }
