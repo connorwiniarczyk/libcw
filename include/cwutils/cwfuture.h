@@ -18,11 +18,13 @@ typedef struct CwFuture {
     int pc; // program counter
     PollFn* poll;
     void* data;
-
-    CwArray* on_success;
-    CwArray* on_cleanup;
+    int err;
 
     struct { struct CwFuture* future; int catch; } child;
+
+    struct { void (*callback)(void*); void* data; } on_success;
+    struct { void (*callback)(void*); void* data; } on_cleanup;
+
 } CwFuture;
 
 void cwfuture_init(CwFuture* self, PollFn* poll, void* data);
@@ -41,10 +43,6 @@ int cwfuture_await(CwFuture* self, CwFuture* target);
 int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch);
 void cwfuture_abort_on(CwFuture* self, CwFuture* target);
 void cwfuture_abort(CwFuture* self);
-
-// CwFutureList* cwfuture_list_new();
-// void cwfuture_list_push(CwFutureList* self, CwFuture* item);
-// CwFuture* cwfuture_list_get(CwFutureList* self, size_t index);
 
 CwFuture* cwfuture_race(CwList* list);
 CwFuture* cwfuture_all(CwList* list);

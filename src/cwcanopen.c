@@ -4,74 +4,67 @@
 #include <cwutils/cwlog.h>
 #include <canopen/canopen.h>
 
-typedef struct TransactionState {
+typedef struct CanTransaction {
     CanOpenListener* listener;
-    CwLogger* logger;
-    CwFuture* timeout;
-} TransactionState;
+	CwFuture* timeout;
+	void* data;
+} CanTransaction;
+
+static CanTransaction* can_transaction_new(CanOpenListener* listener, CwFuture* timeout, void* data) {
+	CanTransaction* self = malloc(sizeof(CanTransaction));
+	self -> listener = listener;
+	self -> timeout = timeout;
+	self -> data = data;
+	return self;
+}
+
+static void cleanup_transaction(CanTransaction* self) {
+    cwfuture_free(self -> timeout);
+    if (self -> data != NULL) free(self -> data);
+    free(self);
+}
 
 static int poll_transaction(int pc, void* data, CwFuture* self) {
-    TransactionState* state = (TransactionState*)(data);
-    (void)(self);
+    CanTransaction* t = (CanTransaction*)(data);
 
-    int err = canopen_handle_all_frames(state -> listener);
-    if (err) {
-        fprintf(stderr, "sdo failed: %s\n", canopen_error_message(err));
-        fprintf(stderr, "%s\n", canopen_sdo_error_message(state -> listener -> client -> error));
-        return -1;
-    }
+    enum Labels { Finished = 0, Running = 1, CleanUp, TimedOut, CanOpenError };
 
 	switch (pc) {
-        case 1: return canopen_client_is_busy(state -> listener -> client) ? pc : pc + 1;
-        case 2:
-            switch (state -> listener -> client -> state) {
-                case CanOpenClientStateAbortedLocal: return -1;
-                case CanOpenClientStateAbortedRemote: return -1;
-                case CanOpenClientStateSuccess: return 0;
-                default: return -1;
-            }
-        default: return -1;
+    	case Running:
+        	if (cwfuture_poll(t -> timeout) < 1) return TimedOut;
+
+        	self -> err = canopen_handle_all_frames(t -> listener);
+        	if (self -> err) return CanOpenError; 
+        	if (canopen_client_is_busy(t -> listener -> client)) return Running;
+
+        	cleanup_transaction(t);
+        	return Finished;
+
+
+    	case TimedOut:
+        	canopen_client_abort(t -> listener -> client, SdoErrorTimeOut);
+        	cleanup_transaction(t);
+        	return Finished;
+
+    	case CanOpenError:
+        	cleanup_transaction(t);
+        	return Finished;
+
+    	case Finished:       return 0;
+    	default:             return 0;
 	}
 }
 
-void canopen_future_on_abort(void* data) {
-    // CanOpenListener* l = (CanOpenListener*)(data);
-	(void)canopen_client_abort(data, SdoErrorTimeOut);
-}
+static inline void canopen_future_on_abort(void* data) { (void)canopen_client_abort(data, SdoErrorTimeOut); }
 
 CwFuture* canopen_init_write_future(CanOpenListener* listener, CanOpenAddress dest, enum CanOpenType type, void* src) {
-	TransactionState* state = malloc(sizeof(TransactionState));
-	state -> listener = listener;
-	state -> logger = NULL;
-
-	int err = canopen_init_write(listener, dest, type, src);
-	(void)err;
-	CwFuture* output = cwfuture_new(poll_transaction, state); 
-
-
-	CwFuture* timeout = cwtimeout_ms(1000);
-	cwfuture_on_success(timeout, canopen_future_on_abort, listener -> client);
-
-	cwfuture_abort_on(output, timeout);
-	cwfuture_on_cleanup(output, free, state);
-	cwfuture_on_cleanup(output, free, src);
-	return output;
-
+	int err = canopen_init_write(listener, dest, type, src); (void)err;
+	return cwfuture_new(poll_transaction, can_transaction_new(listener, cwtimeout_ms(1000), src)); 
 }
 
 CwFuture* canopen_init_read_future(CanOpenListener* listener, CanOpenAddress src, enum CanOpenType type, void* dest) {
-	TransactionState* state = malloc(sizeof(TransactionState));
-	state -> listener = listener;
-	state -> logger = NULL;
-
-	int err = canopen_init_read(listener, src, type, dest);
-	(void)err;
-	CwFuture* output = cwfuture_new(poll_transaction, state); 
-
-	cwfuture_abort_on(output, cwtimeout_ms(1000));
-	cwfuture_on_cleanup(output, free, state);
-	return output;
-
+	int err = canopen_init_read(listener, src, type, dest); (void)err;
+	return cwfuture_new(poll_transaction, can_transaction_new(listener, cwtimeout_ms(1000), NULL)); 
 }
 
 CwFuture* canopen_write_u8(CanOpenListener* listener, CanOpenAddress dest, uint8_t value) {
