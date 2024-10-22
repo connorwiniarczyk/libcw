@@ -4,6 +4,8 @@
 #include <cwutils/cwlog.h>
 #include <canopen/canopen.h>
 
+#include <unistd.h>
+
 typedef struct CanTransaction {
     CanOpenListener* listener;
 	CwFuture* timeout;
@@ -19,9 +21,10 @@ static CanTransaction* can_transaction_new(CanOpenListener* listener, CwFuture* 
 }
 
 static void cleanup_transaction(CanTransaction* self) {
-    cwfuture_free(self -> timeout);
-    if (self -> data != NULL) free(self -> data);
-    free(self);
+    (void)(self);
+    // cwfuture_free(self -> timeout);
+    // if (self -> data != NULL) free(self -> data);
+    // free(self);
 }
 
 static int poll_transaction(int pc, void* data, CwFuture* self) {
@@ -31,6 +34,7 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
 
 	switch (pc) {
     	case Running:
+        	usleep(100 * 1000);
         	if (cwfuture_poll(t -> timeout) < 1) return TimedOut;
 
         	self -> err = canopen_handle_all_frames(t -> listener);

@@ -26,8 +26,8 @@ int cwfuture_poll(CwFuture* self) {
         int pc = cwfuture_poll(self -> child.future);
         if (pc > 0) return pc;
 
-        else if (pc == CWFUTURE_SUCCESS) self -> pc += 1;
-        else if (pc == CWFUTURE_FAILURE) self -> pc = self -> child.catch;
+        else if (self -> child.future -> err == 0) self -> pc += 1;
+        else if (self -> child.future -> err) self -> pc = self -> child.catch;
 
         self -> child.future = NULL;
         return self -> pc;
@@ -43,9 +43,8 @@ int cwfuture_poll(CwFuture* self) {
 
 int cwfuture_block_on(CwFuture* self) {
     while (cwfuture_poll(self) > 0);
-    int output = self -> pc;
     // cwfuture_free(self);
-    return output;
+    return self -> err;
 }
 
 int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch) {
@@ -61,9 +60,7 @@ int cwfuture_await(CwFuture* self, CwFuture* target) {
 CwFuture* cwfuture_free(CwFuture* self) {
     CallbackFn* cleanup = self -> on_cleanup.callback;
     if (cleanup) cleanup(self -> on_cleanup.data);
-
-
-    free(self);
+    // free(self);
     return NULL;
 }
 

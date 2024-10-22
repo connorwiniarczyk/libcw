@@ -11,6 +11,22 @@ void test_1() {
     TEST_ASSERT(err == 0);
 }
 
+void test_loop(void) {
+    int poll(int pc, void* data, CwFuture* self) {
+        int* counter = (int*)(data);
+        switch (pc) {
+			case 1: return cwfuture_await(self, cwtimeout_ms(100));
+			case 2: return fprintf(stderr, "counter: %d\n", *counter), pc + 1; 
+			case 3: return (*counter)++ == 10 ? 0 : 1;
+
+			default: return pc;
+        }
+    }
+
+	int counter = 0;
+    cwfuture_block_on(cwfuture_new(poll, &counter));
+}
+
 static int poll_print(int pc, void* data, CwFuture* self) {
     (void)(data); (void)(self); (void)(pc);
 
@@ -31,7 +47,6 @@ void test_2() {
 
 int main() {
     UNITY_BEGIN();
-    // RUN_TEST(test_1);
-    RUN_TEST(test_2);
+    RUN_TEST(test_loop);
     return UNITY_END();
 }
