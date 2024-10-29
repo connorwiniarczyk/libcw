@@ -6,8 +6,8 @@
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 
     // optimized equivilant to -1 * (start % align)
-	ptrdiff_t padding = -1 * ((uintptr_t)(a -> start) & (align - 1));
-	ptrdiff_t available = (a -> end - a -> start) - padding;
+	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);
+	ptrdiff_t available = a -> end - a -> start - padding;
 	if (available < 0 || count > available / size) return NULL;
 
 	void* output = a -> start + padding;
@@ -20,4 +20,11 @@ CwArena cwarena_new(ptrdiff_t size) {
     output.start = malloc(size);
     output.end = output.start ? output.start + size : 0;
     return output;
+}
+
+CwArena* cwarena_scratch(CwArena* self) {
+	CwArena dup = *self;
+	CwArena* output = cwnew(&dup, CwArena);
+	*output = dup; 
+	return output;
 }

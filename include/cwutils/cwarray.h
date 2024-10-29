@@ -6,9 +6,9 @@
 
 typedef struct CwArray {
 	void* ptr;
-	size_t element_size;
-	size_t size;
-	size_t capacity;
+	int element_size;
+	int size;
+	int capacity;
 } CwArray;
 
 CwArray* cwarray_new(size_t element_size);
@@ -16,7 +16,7 @@ void* cwarray_push(CwArray* self);
 void* cwarray_get(CwArray* self, size_t index);
 void* cwarray_demote(CwArray* self);
 
-size_t cwarray_size(CwArray* self);
+int cwarray_size(CwArray* self);
 
 CwArray* cwarray_free(CwArray* self);
 

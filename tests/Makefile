@@ -14,6 +14,7 @@ srcs += $(wildcard ../src/*.c)
 objs += $(srcs:../src/%.c=build/%.o)
 objs += build/unity.o
 
+# tests += run/cwarena.test
 tests += run/cwfuture.test
 # tests += run/leak.test
 

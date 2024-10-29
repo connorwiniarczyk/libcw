@@ -12,4 +12,8 @@ typedef struct CwArena {
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 CwArena cwarena_new(ptrdiff_t size);
 
+CwArena* cwarena_scratch(CwArena* self);
+
+#define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
+
 #endif
