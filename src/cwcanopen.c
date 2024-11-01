@@ -30,10 +30,13 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
         	return Running;
 
     	case Running:
-        	usleep(100 * 1000);
+        	// usleep(100 * 1000);
         	if (cwfuture_poll(t -> timeout) < 1) return TimedOut;
 
+			#ifndef CWCANOPEN_NO_AUTO_POLL
         	self -> err = canopen_handle_all_frames(t -> listener);
+        	#endif
+
         	if (self -> err) return CanOpenError; 
         	if (canopen_client_is_busy(t -> listener -> client)) return Running;
 
