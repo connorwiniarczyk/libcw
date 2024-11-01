@@ -20,7 +20,7 @@ void* cwarray_get(CwArray* self, size_t index) {
 	return self -> ptr + (self -> element_size * index);
 }
 
-size_t cwarray_size(CwArray* self) {
+int cwarray_size(CwArray* self) {
     return self -> size;
 }
 
@@ -79,14 +79,14 @@ void cwlist_push(CwList* self, void* item) {
     memcpy(cwarray_push(&self -> inner), &item, sizeof(item));
 }
 
-void* cwlist_get(CwList* self, size_t index) {
+void* cwlist_get(CwList* self, int index) {
     if (self -> inner.size < index) return NULL;
 
     return *(void**)(cwarray_get(&self -> inner, index));
 }
 
 void cwarray_for_each(CwArray* self, void (*func)(void*)) {
-    for (size_t i=0; i<self -> size; i++) {
+    for (int i=0; i<self -> size; i++) {
         func(cwarray_get(self, i));
     }
 }

@@ -5,7 +5,7 @@
 #include <cwutils/cwsleep.h>
 #include <cwutils/cwarena.h>
 
-CwFuture* cwtimeout_ms(CwArena* a, int ms);
+CwFuture* cwtimeout_ms(CwArena a, int ms);
 // void cwtimeout_init_ms(CwFuture* self, int ms);
 
 // struct CwTimer;

@@ -26,7 +26,7 @@ typedef struct CwFuture {
 
 // void cwfuture_init(CwFuture* self, PollFn* poll, void* data);
 
-CwFuture* cwfuture_new(CwArena* a, PollFn* poll, void* data);
+CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data);
 // CwFuture* cwfuture_free(CwFuture* self);
 
 int cwfuture_poll(CwFuture* self);
@@ -43,8 +43,8 @@ int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch);
 
 // void cwfuture_abort_on(CwFuture* self, CwFuture* target);
 
-CwFuture* cwfuture_race(CwArena* a, CwList* list);
-CwFuture* cwfuture_all(CwArena* a, CwList* list);
-CwFuture* cwfuture_sequence(CwArena* a, CwList* list);
+CwFuture* cwfuture_race(CwArena a, CwList* list);
+CwFuture* cwfuture_all(CwArena a, CwList* list);
+CwFuture* cwfuture_sequence(CwArena a, CwList* list);
 
 #endif

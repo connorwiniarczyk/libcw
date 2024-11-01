@@ -13,7 +13,6 @@ typedef struct CanTransaction {
 } CanTransaction;
 
 static CanTransaction* can_transaction_new(CwArena* a, CanOpenListener* listener, CwFuture* timeout, void* data) {
-	// CanTransaction* self = cwalloc(a, sizeof(CanTransaction), sizeof(CanTransaction), 1);
 	CanTransaction* self = cwnew(a, CanTransaction);
 	self -> listener = listener;
 	self -> timeout = timeout;
@@ -38,17 +37,14 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
         	if (self -> err) return CanOpenError; 
         	if (canopen_client_is_busy(t -> listener -> client)) return Running;
 
-        	// cleanup_transaction(t);
         	return Finished;
 
 
     	case TimedOut:
         	canopen_client_abort(t -> listener -> client, SdoErrorTimeOut);
-        	// cleanup_transaction(t);
         	return Finished;
 
     	case CanOpenError:
-        	// cleanup_transaction(t);
         	return Finished;
 
     	case Finished:       return 0;
@@ -56,45 +52,57 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
 	}
 }
 
-// static inline void canopen_future_on_abort(void* data) { (void)canopen_client_abort(data, SdoErrorTimeOut); }
+CwFuture* canopen_init_write_future(CwArena a, CanOpenListener* listener, CanOpenAddress dest, enum CanOpenType type, void* src) {
+    CwFuture* timeout    = cwtimeout_ms(cwarena_section(&a, 0x100), 1000);
+    CanTransaction* data = can_transaction_new(&a, listener, timeout, src);
+    CwFuture* output     = cwfuture_new(a, poll_transaction, data);
+    output -> err        = canopen_init_write(listener, dest, type, src);
+    if (output -> err) output -> pc = 0;
 
-CwFuture* canopen_init_write_future(CwArena* a, CanOpenListener* listener, CanOpenAddress dest, enum CanOpenType type, void* src) {
-	int err = canopen_init_write(listener, dest, type, src); (void)err;
-	return cwfuture_new(a, poll_transaction, can_transaction_new(a, listener, cwtimeout_ms(a, 1000), src)); 
+    return output;
+	// return cwfuture_new(a, poll_transaction, can_transaction_new(a, listener, cwtimeout_ms(a, 1000), src)); 
 }
 
-CwFuture* canopen_init_read_future(CwArena* a, CanOpenListener* listener, CanOpenAddress src, enum CanOpenType type, void* dest) {
-	int err = canopen_init_read(listener, src, type, dest); (void)err;
-	return cwfuture_new(a, poll_transaction, can_transaction_new(a, listener, cwtimeout_ms(a, 1000), NULL)); 
+CwFuture* canopen_init_read_future(CwArena a, CanOpenListener* listener, CanOpenAddress src, enum CanOpenType type, void* dest) {
+    CwFuture* timeout    = cwtimeout_ms(cwarena_section(&a, 0x100), 1000);
+    CanTransaction* data = can_transaction_new(&a, listener, timeout, NULL);
+    CwFuture* output     = cwfuture_new(a, poll_transaction, data);
+    output -> err        = canopen_init_read(listener, src, type, dest);
+    if (output -> err) output -> pc = 0;
+
+    return output;
+
+	// int err = canopen_init_read(listener, src, type, dest); (void)err;
+	// return cwfuture_new(a, poll_transaction, can_transaction_new(a, listener, cwtimeout_ms(a, 1000), NULL)); 
 }
 
-CwFuture* canopen_write_u8(CwArena* a, CanOpenListener* listener, CanOpenAddress dest, uint8_t value) {
-    uint8_t* src = cwnew(a, uint8_t);
+CwFuture* canopen_write_u8(CwArena a, CanOpenListener* listener, CanOpenAddress dest, uint8_t value) {
+    uint8_t* src = cwnew(&a, uint8_t);
     *src = value;
     return canopen_init_write_future(a, listener, dest, CanOpenTypeU8, src);
 }
 
-CwFuture* canopen_write_u16(CwArena* a, CanOpenListener* listener, CanOpenAddress dest, uint16_t value) {
-    uint16_t* src = cwnew(a, uint16_t);
+CwFuture* canopen_write_u16(CwArena a, CanOpenListener* listener, CanOpenAddress dest, uint16_t value) {
+    uint16_t* src = cwnew(&a, uint16_t);
     *src = value;
     return canopen_init_write_future(a, listener, dest, CanOpenTypeU16, src);
 }
 
-CwFuture* canopen_write_u32(CwArena* a, CanOpenListener* listener, CanOpenAddress dest, uint32_t value) {
-    uint32_t* src = cwnew(a, uint32_t);
+CwFuture* canopen_write_u32(CwArena a, CanOpenListener* listener, CanOpenAddress dest, uint32_t value) {
+    uint32_t* src = cwnew(&a, uint32_t);
     *src = value;
     return canopen_init_write_future(a, listener, dest, CanOpenTypeU32, src);
 }
 
-CwFuture* canopen_read_u8(CwArena* a, CanOpenListener* listener, CanOpenAddress src, uint8_t* dest) {
+CwFuture* canopen_read_u8(CwArena a, CanOpenListener* listener, CanOpenAddress src, uint8_t* dest) {
     return canopen_init_read_future(a, listener, src, CanOpenTypeU8, dest);
 }
 
-CwFuture* canopen_read_u16(CwArena* a, CanOpenListener* listener, CanOpenAddress src, uint16_t* dest) {
+CwFuture* canopen_read_u16(CwArena a, CanOpenListener* listener, CanOpenAddress src, uint16_t* dest) {
     return canopen_init_read_future(a, listener, src, CanOpenTypeU16, dest);
 }
 
-CwFuture* canopen_read_u32(CwArena* a, CanOpenListener* listener, CanOpenAddress src, uint32_t* dest) {
+CwFuture* canopen_read_u32(CwArena a, CanOpenListener* listener, CanOpenAddress src, uint32_t* dest) {
     return canopen_init_read_future(a, listener, src, CanOpenTypeU32, dest);
 }
 
