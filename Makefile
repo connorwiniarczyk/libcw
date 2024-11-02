@@ -14,12 +14,10 @@ srcs += src/cwarena.c
 srcs += src/cwfmt.c
 srcs += src/cwarray.c
 srcs += src/cwstring.c
-srcs += src/cwlog.c
-srcs += src/cwlayout.c
+srcs += src/cwbox.c
 srcs += src/cwfuture.c
 srcs += src/cwsleep.c
 srcs += src/cwtimer.c
-
 
 canopen = true
 ifdef canopen
