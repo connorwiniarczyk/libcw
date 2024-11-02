@@ -1,5 +1,12 @@
 #include <cwutils/cwbox.h>
 
+bool cwbox_is_inside(Rectangle self, Vector2 point) {
+	return point.x > self.x
+	    && point.x < self.x + self.width
+	    && point.y > self.y
+	    && point.y < self.y + self.height;
+}
+
 Vector2 cwbox_get_point(Rectangle self, float x, float y) {
     return (Vector2) { self.x + self.width * x, self.y + self.height * y };
 }

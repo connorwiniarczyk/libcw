@@ -1,6 +1,9 @@
 #ifndef CWBOX_H
 #define CWBOX_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #ifndef RAYLIB_H
 typedef struct Rectangle {
     float x;
@@ -15,8 +18,8 @@ typedef struct Vector2 {
 } Vector2;
 #endif
 
-#include <stdint.h>
 
+bool cwbox_is_inside(Rectangle self, Vector2 point);
 Vector2 cwbox_get_point(Rectangle self, float x, float y);
 
 Rectangle cwbox_pad(Rectangle self, uint16_t padding_x, uint16_t padding_y);
