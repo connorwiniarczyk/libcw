@@ -6,10 +6,13 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <cwutils/cwarena.h>
+
 typedef struct CwString {
 	uint8_t*  ptr;
 	size_t size;
 	size_t capacity;
+	CwArena arena;
 } CwString;
 
 CwString* cwstring_new();
