@@ -6,13 +6,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// void cwfuture_init(CwFuture* self, PollFn* poll, void* data) {
-//     *self = (CwFuture){0};
-//     self -> poll = poll;
-//     self -> data = data;
-//     self -> pc = 1;
-// }
-
 CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data) {
     CwFuture* self = cwnew(&a, CwFuture);
     if (self == NULL) return NULL;
@@ -27,19 +20,18 @@ CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data) {
 }
 
 int cwfuture_poll(CwFuture* self) {
-    if (self -> child.future) {
-        int pc = cwfuture_poll(self -> child.future);
-        if (pc > 0) return self -> pc;
-
-        else if (self -> child.future -> err == 0) self -> pc += 1;
-        else if (self -> child.future -> err) self -> pc = self -> child.catch;
-
-        self -> child.future = NULL;
-        return self -> pc;
+    if (self -> child) {
+        int pc = cwfuture_poll(self -> child);
+        if (pc == 0) {
+            self -> err = self -> child -> err;
+            self -> pc += 1;
+            self -> child = NULL;
+        }
     }
 
-    self -> pc = self -> poll(self -> pc, self -> data, self);
-
+    else {
+        self -> pc = self -> poll(self -> pc, self -> data, self);
+    }
     return self -> pc;
 }
 
@@ -49,14 +41,13 @@ int cwfuture_run(CwFuture* self) {
     return self -> err;
 }
 
-int cwfuture_await_with_catch(CwFuture* self, CwFuture* target, int catch) {
-    self -> child.future = target;
-    self -> child.catch = catch;
+int cwfuture_await(CwFuture* self, CwFuture* target) {
+    self -> child = target;
     return self -> pc;
 }
 
-int cwfuture_await(CwFuture* self, CwFuture* target) {
-    return cwfuture_await_with_catch(self, target, -1);
+int cwfuture_await_new(CwFuture* self, PollFn* poll, void* data) {
+	return cwfuture_await(self, cwfuture_new(self -> arena, poll, data));
 }
 
 int poll_sequence(int pc, void* data, CwFuture* self) {

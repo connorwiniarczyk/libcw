@@ -30,4 +30,9 @@ Rectangle cwbox_split_bottom(Rectangle* self, uint16_t size);
 Rectangle cwbox_split_left(Rectangle* self, uint16_t size);
 Rectangle cwbox_split_right(Rectangle* self, uint16_t size);
 
+// Vector2 cwbox_top(Rectangle* self);
+// Vector2 cwbox_bottom(Rectangle* self);
+// Vector2 cwbox_left(Rectangle* self);
+// Vector2 cwbox_right(Rectangle* self);
+
 #endif

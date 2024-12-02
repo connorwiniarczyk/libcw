@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <stdio.h>
+
 typedef struct CwStr {
 	char* ptr;
 	int   size;
@@ -22,15 +24,30 @@ static void push_char_front(char* front, CwArena* a, char c) {
     *front = c;
 }
 
+CwStr cwstr_read_file(CwArena* a, char* path) {
+    CwStr output = { (char*)(a -> start), 0 };
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) return (CwStr){ NULL, 0 };
+
+	int bytes_read;
+	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1);
+
+	return output;
+
+}
+
 
 CwStr cwfmt_hex(CwArena* a, int value, int digits) {
     char* output = (char*)(a -> start);
 
-    for (int i=0; digits == 0 ? value > 0 : i<digits; i++) {
+	int i;
+    for (i=0; digits == 0 ? value > 0 : i<digits; i++) {
         uint8_t digit = (uint8_t)(value & 0x0F);
         push_char_front(output, a, digit <= 9 ? digit + '0' : (digit - 10) + 'A');
         value >>= 4;
     }
+
+    if (i & 1) push_char_front(output, a, '0'); 
 
     return (CwStr){ output, digits };
 }
@@ -38,12 +55,15 @@ CwStr cwfmt_hex(CwArena* a, int value, int digits) {
 CwStr cwfmt_dec(CwArena* a, int value, int digits) {
     char* output = (char*)(a -> start);
 
-    for (int i=0; digits == 0 ? value > 0 : i<digits; i++) {
+	int i;
+    for (i=0; digits == 0 ? value > 0 : i<digits; i++) {
         uint8_t digit = (uint8_t)(value % 10);
         push_char_front(output, a, digit + '0');
         // push_char_front(output, a, digit <= 9 ? digit + '0' : (digit - 10) + 'A');
         value /= 10;
     }
+
+    if (i == 0) push_char(a, '0');
 
     return (CwStr){ output, digits };
 }

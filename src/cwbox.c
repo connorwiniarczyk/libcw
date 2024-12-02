@@ -32,7 +32,7 @@ Rectangle cwbox_split_top(Rectangle* self, uint16_t size) {
 Rectangle cwbox_split_bottom(Rectangle* self, uint16_t size) {
 	Rectangle output = *self;
 
-	output.y = (self -> height - size);
+	output.y = (self -> y + self -> height - size);
 	output.height = size;
 
 	self -> height -= size;

@@ -11,6 +11,7 @@ cc_flags += -Wall -Wextra -Werror
 cc_flags += -D$(target)
 
 srcs += src/cwarena.c
+srcs += src/cwqueue.c
 srcs += src/cwfmt.c
 srcs += src/cwarray.c
 srcs += src/cwstring.c
