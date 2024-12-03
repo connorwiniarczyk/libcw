@@ -150,7 +150,7 @@ static int canopen_cwstring_writer_init(void* self_v, void* dest_v) {
 
 static int canopen_cwstring_writer_write(void* self_v, uint8_t* src, size_t size) {
     CwString* self = *((CwString**)(self_v));
-    cwstring_append_slice(self, src, size);
+    cwstring_push_slice(self, (char*)src, size);
 	return 0;
 }
 
