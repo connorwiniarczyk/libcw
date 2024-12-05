@@ -11,6 +11,7 @@ typedef struct CwSlice {
 } CwSlice;
 
 void* cwslice_get(CwSlice* self, int index);
+#define cwslice_get_as(self, t, i) (*(t*)(cwslice_get(self, i)))
 
 typedef struct CwArray {
     void* ptr;
@@ -21,30 +22,13 @@ typedef struct CwArray {
 
 CwArray cwarray_new(CwArena a, int element_size);
 void* cwarray_push(CwArray* self);
-
 void cwarray_clear(CwArray* self);
-CwSlice cwarray_finish(CwArray self, CwArena* a);
-
+CwSlice cwarray_finish(CwArray* self, CwArena* a);
 int cwarray_size(CwArray* self);
 
-// typedef struct CwArray {
-// 	void* ptr;
-// 	int element_size;
-// 	int size;
-// 	int capacity;
-// } CwArray;
+#define cwarray_as(t, self) ((t)(self.ptr))
+#define cwarray_as_slice(self) ((CwSlice) { self.ptr, self.size })
 
-// CwArray* cwarray_new(size_t element_size);
-// void*    cwarray_push(CwArray* self);
-// void*    cwarray_get(CwArray* self, size_t index);
-// void*    cwarray_demote(CwArray* self);
-
-// int cwarray_size(CwArray* self);
-// CwArray* cwarray_free(CwArray* self);
-// void cwarray_for_each(CwArray* self, void (*func)(void*));
-
-// A CwList is a special case of a CwArray where element_size
-// is sizeof(void*).
 typedef struct CwList { struct CwArray inner; } CwList;
 
 CwList cwlist_new();

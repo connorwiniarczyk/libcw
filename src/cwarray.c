@@ -10,7 +10,7 @@ void* cwslice_get(CwSlice* self, int index) {
 
 CwArray cwarray_new(CwArena a, int element_size) {
     return (CwArray) {
-        .ptr = a.start,
+        .ptr = cwalloc(&a, 1, 4, 0),
         .size = 0,
         .element_size = element_size,
         .a = a,
@@ -24,13 +24,13 @@ void* cwarray_push(CwArray* self) {
     return output;
 }
 
-CwSlice cwarray_finish(CwArray self, CwArena* a) {
-    *a = self.a;
+CwSlice cwarray_finish(CwArray* self, CwArena* a) {
+    *a = self -> a;
 
     return (CwSlice) {
-        .ptr = self.ptr,
-        .size = self.size,
-        .element_size = self.element_size,
+        .ptr = self -> ptr,
+        .size = self -> size,
+        .element_size = self -> element_size,
     };
 }
 

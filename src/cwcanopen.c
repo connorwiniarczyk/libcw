@@ -109,6 +109,37 @@ CwFuture* canopen_read_u32(CwArena a, CanOpenListener* listener, CanOpenAddress 
     return canopen_init_read_future(a, listener, src, CanOpenTypeU32, dest);
 }
 
+static int reader_init(void* data, void* src) {
+    memcpy(data, src, sizeof(CwStr));
+    return 0;
+}
+
+static int reader_read(void* data, uint8_t* dest, size_t size, bool* is_over) {
+    CwStr* self = (CwStr*)(data);
+
+    int i;
+    for (i=0; i < ((int)(size)) && self -> size > 0; i++, self -> size -= 1) {
+        dest[i] = self -> ptr[i];
+    }
+
+    self -> ptr += i;
+    if (self -> size == 0) *is_over = true;
+
+    return 0;
+}
+
+static int reader_remaining(void* data) {
+    return ((CwStr*)(data)) -> size;
+}
+
+CanOpenReaderVTable cwstr_reader = {
+    .init = reader_init,
+    .read  = reader_read,
+    .remaining = reader_remaining,
+};
+
+
+
 
 static int canopen_cwstring_reader_init(void* self_v, void* src_v) {
 	CwString* src  = (CwString*)(src_v);

@@ -14,6 +14,8 @@ typedef struct CwStr {
 } CwStr;
 
 CwStr cwstr_from_file(CwArena* a, char* path);
+CwStr cwstr_substr(CwStr* self, int start, int end);
+
 void cwstr_write_to_file(CwStr* self, char* path);
 
 typedef struct CwString {
@@ -31,16 +33,5 @@ CwStr cwstring_finish(CwString* self, CwArena* mem);
 
 void cwstring_push_slice(CwString* self, char* src, int size);
 void cwstring_push_cstr(CwString* self, char* src);
-
-// void cwstring_free(CwString* self);
-// int cwstring_push(CwString* self, char c);
-// int cwstring_push_front(CwString* self, char c);
-// int cwstring_append_cstr(CwString* self, const char* str);
-// int cwstring_prepend_cstr(CwString* self, char* str);
-// int cwstring_append_slice(CwString* self, uint8_t* src, size_t size);
-// int cwstring_clear(CwString* self);
-// void cwstring_add_terminator(CwString* self);
-
-// int cwstring_write_to_file(CwString* self, char* path);
 
 #endif

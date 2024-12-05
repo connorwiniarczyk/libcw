@@ -18,4 +18,6 @@ CwFuture* canopen_read_u32          (CwArena a, CanOpenListener* listener, CanOp
 extern CanOpenReaderVTable canopen_cwstring_reader;
 extern CanOpenWriterVTable canopen_cwstring_writer;
 
+extern CanOpenReaderVTable cwstr_reader;
+
 #endif

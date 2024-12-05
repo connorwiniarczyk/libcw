@@ -37,12 +37,18 @@ CwStr cwstr_from_file(CwArena* a, char* path) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) return output;
 
+    output.ptr = (char*)(a -> start);
+
 	size_t bytes_read;
-	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1);
+	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1) output.size++;
 
 	fclose(file);
 
 	return output;
+}
+
+CwStr cwstr_substr(CwStr* self, int start, int end) {
+    return (CwStr){ self -> ptr + start, end - start };
 }
 
 CwStr cwstring_finish(CwString* self, CwArena* a) {
