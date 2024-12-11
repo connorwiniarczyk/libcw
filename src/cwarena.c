@@ -1,6 +1,7 @@
 #include <cwutils/cwarena.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // Shamelessly stolen from: https://nullprogram.com/blog/2023/09/27/
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
@@ -19,11 +20,19 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 	return memset(output, 0, count * size);
 }
 
+static int complain_and_abort(CwArena* a) {
+    (void)(a);
+	fprintf(stderr, "OUT OF MEMORY\n");
+	exit(1);
+
+	return 1;
+}
+
 CwArena cwarena_new(ptrdiff_t size) {
     CwArena output = {0};
     output.start = malloc(size);
     output.end = output.start ? output.start + size : 0;
-    output.on_overflow = NULL;
+    output.on_overflow = &complain_and_abort;
     return output;
 }
 
