@@ -19,23 +19,13 @@ typedef struct CwFuture {
 
     struct CwFuture* child;
 
-    // struct { struct CwFuture* future; int catch; } child;
-
-    // struct { void (*callback)(void*); void* data; } on_success;
-    // struct { void (*callback)(void*); void* data; } on_cleanup;
-
 } CwFuture;
 
-// void cwfuture_init(CwFuture* self, PollFn* poll, void* data);
-
 CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data);
-// CwFuture* cwfuture_free(CwFuture* self);
 
 int cwfuture_poll(CwFuture* self);
 int cwfuture_run(CwFuture* self);
-
 int cwfuture_abort(CwFuture* self, int err);
-
 int cwfuture_await(CwFuture* self, CwFuture* target);
 int cwfuture_await_new(CwFuture* self, PollFn* poll, void* data);
 
