@@ -37,8 +37,13 @@ int cwfuture_poll(CwFuture* self) {
 
 int cwfuture_run(CwFuture* self) {
     while (cwfuture_poll(self) > 0);
-
     return self -> err;
+}
+
+int cwfuture_abort(CwFuture* self, int err) {
+    self -> err = err;
+    self -> pc = 0;
+    return 0;
 }
 
 int cwfuture_await(CwFuture* self, CwFuture* target) {

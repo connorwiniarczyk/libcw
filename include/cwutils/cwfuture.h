@@ -34,7 +34,7 @@ CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data);
 int cwfuture_poll(CwFuture* self);
 int cwfuture_run(CwFuture* self);
 
-void cwfuture_abort(CwFuture* self);
+int cwfuture_abort(CwFuture* self, int err);
 
 int cwfuture_await(CwFuture* self, CwFuture* target);
 int cwfuture_await_new(CwFuture* self, PollFn* poll, void* data);
