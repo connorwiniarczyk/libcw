@@ -1,4 +1,22 @@
 #include <cwutils/cwstring.h>
+#include <assert.h>
+
+// int cwstr_compare(CwStr a, CwStr b) {
+//     for (int i=0; i<a.size && i<b.size; i++) {
+
+//     }
+// }
+
+bool cwstr_equals(CwStr a, CwStr b) {
+    if (a.size != b.size) return false;
+
+    for (int i=0; i<a.size; i++) {
+		if (a.ptr[i] != b.ptr[i]) return false;
+    }
+
+    return true;
+}
+
 
 CwString cwstring_new(CwArena a) {
     CwString output = {
@@ -8,6 +26,15 @@ CwString cwstring_new(CwArena a) {
     };
 
     return output;
+}
+
+CwStr cwstr_substr(CwStr self, int start, int end) {
+    assert(start >= 0);
+    assert(end >= start);
+    assert(end <= self.size);
+
+    return (CwStr) { self.ptr + start, end - start };
+
 }
 
 void cwstring_push(CwString* self, char c) {
@@ -40,15 +67,23 @@ CwStr cwstr_from_file(CwArena* a, char* path) {
     output.ptr = (char*)(a -> start);
 
 	size_t bytes_read;
-	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1) output.size++;
+	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1) output.size += bytes_read;
 
 	fclose(file);
 
 	return output;
 }
 
-CwStr cwstr_substr(CwStr* self, int start, int end) {
-    return (CwStr){ self -> ptr + start, end - start };
+CwStr cwstr_from(const char* cstr) {
+    return (CwStr){ .ptr = (char*)(cstr), .size = strlen(cstr) };
+}
+
+bool cwstr_contains(CwStr self, char c) {
+    for (int i=0; i<self.size; i++) {
+		if (self.ptr[i] == c) return true;
+    }
+
+    return false;
 }
 
 CwStr cwstring_finish(CwString* self, CwArena* a) {
@@ -59,9 +94,6 @@ CwStr cwstring_finish(CwString* self, CwArena* a) {
 void cwstring_clear(CwString* self) {
     self -> a.start = (void*)self -> ptr;
 }
-
-
-
 
 // int cwstring_write_to_file(CwString* self, char* path) {
 //     FILE* file = fopen(path, "wb");

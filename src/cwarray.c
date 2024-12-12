@@ -34,6 +34,11 @@ CwSlice cwarray_finish(CwArray* self, CwArena* a) {
     };
 }
 
+void cwarray_clear(CwArray* self) {
+    self -> a.start = self -> ptr;
+    self -> size = 0;
+}
+
 int cwarray_size(CwArray* self) {
     return self -> size;
 }

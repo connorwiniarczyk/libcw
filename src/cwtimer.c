@@ -1,6 +1,8 @@
 #include <cwutils/cwtimer.h> 
 #include <cwutils/cwarena.h> 
 
+#include <stdio.h> 
+
 static void* timer_thread(void* data) {
     int* amount = (int*)(data);
     cwsleep_ms(*amount);
@@ -12,6 +14,7 @@ static int poll_timer(int pc, void* data, CwFuture* self) {
     int remaining = *((int*)(data));
     // printf("%d\n", remaining);
     switch (pc) {
+        case 0: return 0;
         case 1: return remaining == 0 ? 0 : pc;
         default: return self -> err = 1, 0;
     }
