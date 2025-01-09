@@ -30,11 +30,10 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
         	return Running;
 
     	case Running:
-        	// usleep(100 * 1000);
         	if (cwfuture_poll(t -> timeout) < 1) return TimedOut;
 
 			#ifndef CWCANOPEN_NO_AUTO_POLL
-        	self -> err = canopen_handle_all_frames(t -> listener);
+        	// self -> err = canopen_handle_all_frames(t -> listener);
         	#endif
 
         	if (self -> err) return CanOpenError; 
@@ -44,6 +43,7 @@ static int poll_transaction(int pc, void* data, CwFuture* self) {
 
 
     	case TimedOut:
+        	printf("timeout\n");
         	canopen_client_abort(t -> listener -> client, SdoErrorTimeOut);
         	return Finished;
 
@@ -125,7 +125,7 @@ static int reader_read(void* data, uint8_t* dest, size_t size, bool* is_over) {
     self -> ptr += i;
     if (self -> size == 0) *is_over = true;
 
-    return 0;
+    return i;
 }
 
 static int reader_remaining(void* data) {

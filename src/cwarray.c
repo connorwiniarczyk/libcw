@@ -34,9 +34,16 @@ CwSlice cwarray_finish(CwArray* self, CwArena* a) {
     };
 }
 
+void cwarray_clear(CwArray* self) {
+    self -> a.start = self -> ptr;
+    self -> size = 0;
+}
+
 int cwarray_size(CwArray* self) {
     return self -> size;
 }
+
+
 
 CwList cwlist_new(CwArena a) {
     CwList output;
@@ -77,6 +84,36 @@ CwList cwlist_with_elements(CwArena a, size_t n, ...) {
     va_end(args);
 
 	return self;
+}
+
+CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size) {
+	CwRingBuffer output;
+	output.data.ptr = cwalloc(a, element_size, 4, size);
+	output.data.element_size = element_size;
+	output.data.size = size;
+	output.front = 0;
+	output.back = 0;
+
+	return output;
+}
+
+void* cwringbuffer_push(CwRingBuffer* self) {
+    int next = (self -> back + 1) % self -> data.size;
+
+    if (next == self -> front) (void)cwringbuffer_pop(self); 
+
+    self -> back = next;
+    return cwslice_get(&self -> data, self -> back);
+}
+
+void* cwringbuffer_pop(CwRingBuffer* self) {
+    if (self -> front == self -> back) return NULL;
+
+    self -> front += 1;
+    self -> front %= self -> data.size;
+
+    void* output = cwslice_get(&self -> data, self -> front);
+    return output;
 }
 
 

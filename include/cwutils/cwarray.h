@@ -27,7 +27,17 @@ CwSlice cwarray_finish(CwArray* self, CwArena* a);
 int cwarray_size(CwArray* self);
 
 #define cwarray_as(t, self) ((t)(self.ptr))
-#define cwarray_as_slice(self) ((CwSlice) { self.ptr, self.size })
+#define cwarray_as_slice(self) ((CwSlice) { self.ptr, self.size, self.element_size })
+
+typedef struct CwRingBuffer {
+    CwSlice data;
+    int front;
+    int back;
+} CwRingBuffer;
+
+CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size);
+void* cwringbuffer_push(CwRingBuffer* self);
+void* cwringbuffer_pop(CwRingBuffer* self);
 
 typedef struct CwList { struct CwArray inner; } CwList;
 

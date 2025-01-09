@@ -47,6 +47,11 @@ CwStr cwfmt_hex(CwArena* a, int value, int digits) {
         value >>= 4;
     }
 
+    if (i == 0) {
+        push_char_front(output, a, '0'); 
+        i += 1;
+    }
+
     if (i & 1) push_char_front(output, a, '0'); 
 
     return (CwStr){ output, digits };

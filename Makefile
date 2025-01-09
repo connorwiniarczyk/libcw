@@ -1,14 +1,14 @@
-prefix = $(HOME)/.local
-MAKEFLAGS += --no-print-directory
+prefix   ?= $(HOME)/.local
+platform ?= linux
+canopen  ?= true
 
-target ?= LINUX
+MAKEFLAGS += --no-print-directory
 
 cc_flags += -I include
 cc_flags += -I include/cwutils
 cc_flags += -g
 cc_flags += -O2
 cc_flags += -Wall -Wextra -Werror
-cc_flags += -D$(target)
 
 srcs += src/cwarena.c
 srcs += src/cwqueue.c
@@ -20,10 +20,13 @@ srcs += src/cwfuture.c
 srcs += src/cwsleep.c
 srcs += src/cwtimer.c
 
-canopen = true
+ifdef platform
+srcs += src/platform_$(platform).c
+endif
+
 ifdef canopen
 srcs += src/cwcanopen.c
-cc_flags += -I $(HOME)/.local/include
+cc_flags += -I $(prefix)/include
 endif
 
 objs += $(srcs:src/%.c=build/%.o)
