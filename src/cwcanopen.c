@@ -125,7 +125,7 @@ static int reader_read(void* data, uint8_t* dest, size_t size, bool* is_over) {
     self -> ptr += i;
     if (self -> size == 0) *is_over = true;
 
-    return 0;
+    return i;
 }
 
 static int reader_remaining(void* data) {
