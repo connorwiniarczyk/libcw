@@ -100,13 +100,13 @@ CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size) {
 void* cwringbuffer_push(CwRingBuffer* self) {
     int next = (self -> back + 1) % self -> data.size;
 
-    if (next == self -> front) (void)cwringbuffer_pop(self); 
+    if (next == self -> front) (void)cwringbuffer_next(self); 
 
     self -> back = next;
     return cwslice_get(&self -> data, self -> back);
 }
 
-void* cwringbuffer_pop(CwRingBuffer* self) {
+void* cwringbuffer_next(CwRingBuffer* self) {
     if (self -> front == self -> back) return NULL;
 
     self -> front += 1;
@@ -114,6 +114,10 @@ void* cwringbuffer_pop(CwRingBuffer* self) {
 
     void* output = cwslice_get(&self -> data, self -> front);
     return output;
+}
+
+void* cwringbuffer_peek(CwRingBuffer* self) {
+    return cwslice_get(&self -> data, self -> front);
 }
 
 

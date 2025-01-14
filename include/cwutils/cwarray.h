@@ -37,7 +37,8 @@ typedef struct CwRingBuffer {
 
 CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size);
 void* cwringbuffer_push(CwRingBuffer* self);
-void* cwringbuffer_pop(CwRingBuffer* self);
+void* cwringbuffer_next(CwRingBuffer* self);
+void* cwringbuffer_peek(CwRingBuffer* self);
 
 typedef struct CwList { struct CwArray inner; } CwList;
 
