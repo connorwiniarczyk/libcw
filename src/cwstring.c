@@ -59,7 +59,7 @@ void cwstring_push_cstr(CwString* self, char* src) {
     for (int i=0; src[i] != '\0'; i++) cwstring_push(self, src[i]);
 }
 
-CwStr cwstr_from_file(CwArena* a, char* path) {
+CwStr cwstr_from_file(CwArena* a, const char* path) {
     CwStr output = {0};
     FILE* file = fopen(path, "rb");
     if (file == NULL) return output;

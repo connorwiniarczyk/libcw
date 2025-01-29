@@ -17,5 +17,6 @@ CwArena cwarena_section(CwArena* self, ptrdiff_t size);
 CwArena* cwarena_scratch(CwArena* self);
 
 #define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
+#define cwnew_array(a, t, i) cwalloc(a, sizeof(t), _Alignof(t), i)
 
 #endif

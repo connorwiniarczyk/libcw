@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-void panic() {}
+void cwplatform_panic() {}
 
 void cwsleep_ms(int ms) {
     usleep(ms * 1000);
