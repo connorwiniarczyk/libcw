@@ -24,12 +24,12 @@ int cwcmd_run(CwCmd* self) {
 	(void)(cwnew(&self -> memory, char*));
 
 	const char* name = self -> ptr[0];
-	const char **args = (self -> ptr + 1);
+	// const char **args = (self -> ptr + 1);
 	char* environment[] = { NULL };
 
 	int pid = fork();
 	if (pid == 0) {
-    	int err = execve(name, (char* const*)args, environment);
+    	int err = execve(name, (char* const*)(self -> ptr), environment);
     	return err;
 	} 
 

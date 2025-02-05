@@ -55,33 +55,33 @@ int cwfuture_await_new(CwFuture* self, PollFn* poll, void* data) {
 	return cwfuture_await(self, cwfuture_new(self -> arena, poll, data));
 }
 
-int poll_sequence(int pc, void* data, CwFuture* self) {
-    if (pc < 1) return pc;
-    if (pc - 1 >= cwarray_size(data)) return 0;
+// int poll_sequence(int pc, void* data, CwFuture* self) {
+//     if (pc < 1) return pc;
+//     if (pc - 1 >= cwarray_size(data)) return 0;
 
-	// else
-    return cwfuture_await(self, cwlist_get(data, pc - 1));
-}
+// 	// else
+//     return cwfuture_await(self, cwlist_get(data, pc - 1));
+// }
 
-CwFuture* cwfuture_sequence(CwArena a, CwList* list) {
-    return cwfuture_new(a, &poll_sequence, list);
-}
+// CwFuture* cwfuture_sequence(CwArena a, CwList* list) {
+//     return cwfuture_new(a, &poll_sequence, list);
+// }
 
-static int poll_race(int pc, void* data, CwFuture* self) {
-    if (pc != 1) return pc;
-    for (int i=0; i < cwarray_size(data); i++) {
-        int res = cwfuture_poll(cwlist_get(data, i));
+// static int poll_race(int pc, void* data, CwFuture* self) {
+//     if (pc != 1) return pc;
+//     for (int i=0; i < cwarray_size(data); i++) {
+//         int res = cwfuture_poll(cwlist_get(data, i));
 
-        // if any of the inner futures finishes, end the whole future
-        if (res < 1) {
-            self -> err = i;
-            return 0;
-        }
-    }
+//         // if any of the inner futures finishes, end the whole future
+//         if (res < 1) {
+//             self -> err = i;
+//             return 0;
+//         }
+//     }
 
-    return 1;
-}
+//     return 1;
+// }
 
-CwFuture* cwfuture_race(CwArena a, CwList* list) {
-	return cwfuture_new(a, poll_race, list);
-}
+// CwFuture* cwfuture_race(CwArena a, CwList* list) {
+// 	return cwfuture_new(a, poll_race, list);
+// }

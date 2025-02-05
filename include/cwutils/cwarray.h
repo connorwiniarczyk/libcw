@@ -4,6 +4,19 @@
 #include <stdint.h>
 #include <cwutils/cwarena.h>
 
+#define cwarray_type(t) struct cwarray_ ## t { t* ptr; int size; CwArena mem; }
+
+#define cwarray_init(arr, arena) do { \
+    arr.ptr = (void*)(arena.start);   \
+    arr.size = 0;                     \
+    arr.mem = arena;                  \
+} while(0)
+
+#define cwarray_push(arr, type, value) do {  \
+    *(type*)(cwnew(&arr.mem, type)) = value; \
+    arr.size += 1;                           \
+} while(0)
+
 typedef struct CwSlice {
     void* ptr;
     int size;
@@ -11,23 +24,6 @@ typedef struct CwSlice {
 } CwSlice;
 
 void* cwslice_get(CwSlice* self, int index);
-#define cwslice_get_as(self, t, i) (*(t*)(cwslice_get(self, i)))
-
-typedef struct CwArray {
-    void* ptr;
-    int size;
-    int element_size;
-    CwArena a;
-} CwArray;
-
-CwArray cwarray_new(CwArena a, int element_size);
-void* cwarray_push(CwArray* self);
-void cwarray_clear(CwArray* self);
-CwSlice cwarray_finish(CwArray* self, CwArena* a);
-int cwarray_size(CwArray* self);
-
-#define cwarray_as(t, self) ((t)(self.ptr))
-#define cwarray_as_slice(self) ((CwSlice) { self.ptr, self.size, self.element_size })
 
 typedef struct CwRingBuffer {
     CwSlice data;
@@ -39,13 +35,5 @@ CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size);
 void* cwringbuffer_push(CwRingBuffer* self);
 void* cwringbuffer_next(CwRingBuffer* self);
 void* cwringbuffer_peek(CwRingBuffer* self);
-
-typedef struct CwList { struct CwArray inner; } CwList;
-
-CwList cwlist_new();
-CwList cwlist_with_elements(CwArena a, size_t size, ...);
-void cwlist_push(CwList* self, void* item);
-void cwlist_push_many(CwList* self, size_t size, ...);
-void* cwlist_get(CwList* self, int index);
 
 #endif
