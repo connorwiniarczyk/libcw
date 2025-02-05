@@ -1,6 +1,6 @@
 prefix   ?= $(HOME)/.local
 platform ?= linux
-canopen  ?= true
+canopen  ?= false
 
 MAKEFLAGS += --no-print-directory
 
@@ -25,7 +25,7 @@ ifdef platform
 srcs += src/platform_$(platform).c
 endif
 
-ifdef canopen
+ifeq ($(canopen), true)
 srcs += src/cwcanopen.c
 cc_flags += -I $(prefix)/include
 endif
