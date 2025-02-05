@@ -11,6 +11,7 @@ cc_flags += -O2
 cc_flags += -Wall -Wextra -Werror
 
 srcs += src/cwarena.c
+srcs += src/cwcmd.c
 srcs += src/cwvector.c
 srcs += src/cwqueue.c
 srcs += src/cwfmt.c
