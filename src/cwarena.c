@@ -25,7 +25,11 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 }
 
 
-CwArena cwarena_new(CwAllocFn* alloc, ptrdiff_t size) {
+CwArena cwarena_empty() {
+    return (CwArena) { .start = NULL, .end = NULL };
+}
+
+CwArena cwarena_create(CwAllocFn* alloc, ptrdiff_t size) {
     CwArena output = {0};
     output.start = alloc(size);
     if (output.start == NULL) cwpanic_out_of_memory("arena initial allocation failed");

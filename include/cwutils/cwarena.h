@@ -13,7 +13,8 @@ typedef struct CwArena {
 
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 
-CwArena cwarena_new(CwAllocFn* alloc, ptrdiff_t size);
+CwArena cwarena_create(CwAllocFn* alloc, ptrdiff_t size);
+CwArena cwarena_empty();
 CwArena cwarena_section(CwArena* self, ptrdiff_t size);
 
 CwArena* cwarena_scratch(CwArena* self);

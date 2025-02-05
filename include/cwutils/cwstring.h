@@ -14,8 +14,9 @@ typedef struct CwStr {
 	int32_t size;
 } CwStr;
 
+CwStr cwstr(const char* cstr);
+
 CwStr cwstr_from_file(CwArena* a, const char* path);
-CwStr cwstr_from(const char* cstr);
 CwStr cwstr_substr(CwStr self, int start, int end);
 void cwstr_write_to_file(CwStr self, char* path);
 bool cwstr_contains(CwStr self, char c);

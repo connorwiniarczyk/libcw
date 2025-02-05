@@ -2,12 +2,13 @@
 #define CWARRAY_H
 
 #include <stdint.h>
+#include <stdalign.h>
 #include <cwutils/cwarena.h>
 
 #define cwarray_type(t) struct cwarray_ ## t { t* ptr; int size; CwArena mem; }
 
-#define cwarray_init(arr, arena) do { \
-    arr.ptr = (void*)(arena.start);   \
+#define cwarray_init(arr, type, arena) do { \
+    arr.ptr = (void*)(cwalloc(&(arena), sizeof(type), alignof(type), 0));   \
     arr.size = 0;                     \
     arr.mem = arena;                  \
 } while(0)
