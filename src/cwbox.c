@@ -1,4 +1,4 @@
-#include <cwutils/cwbox.h>
+#include <cwgeometry.h>
 
 bool cwbox_is_inside(Rectangle self, Vector2 point) {
 	return point.x > self.x

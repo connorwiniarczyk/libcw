@@ -1,4 +1,5 @@
-#include <cwutils/cwvector.h>
+#include <cwgeometry.h>
+#include <math.h>
 
 Vector2 cwvec2_add(Vector2 a, Vector2 b) { return (Vector2){ a.x + b.x, a.y + b.y }; }
 Vector2 cwvec2_sub(Vector2 a, Vector2 b) { return (Vector2){ a.x - b.x, a.y - b.y }; }

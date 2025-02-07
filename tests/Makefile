@@ -8,14 +8,29 @@ cc_flags += -Wextra -Wall -Werror
 cc_flags += -g
 cc_flags += -DLINUX
 cc_flags += -L$(HOME)/.local/lib
-cc_flags += -lcanopen -lc
+cc_flags += -lm -lc
 
-srcs += $(wildcard ../src/*.c)
+srcs += ../src/cwarena.c
+srcs += ../src/cwcmd.c
+srcs += ../src/cwvector.c
+srcs += ../src/cwqueue.c
+srcs += ../src/cwfmt.c
+srcs += ../src/cwarray.c
+srcs += ../src/cwstring.c
+srcs += ../src/cwbox.c
+srcs += ../src/cwfuture.c
+srcs += ../src/cwsleep.c
+srcs += ../src/cwtimer.c
+
+srcs += ../src/platform_linux.c
+
 objs += $(srcs:../src/%.c=build/%.o)
 objs += build/unity.o
 
+tests += run/fmt.test
+
 # tests += run/cwarena.test
-tests += run/cwfuture.test
+# tests += run/cwfuture.test
 # tests += run/leak.test
 
 all: clean build run

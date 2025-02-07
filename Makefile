@@ -55,6 +55,9 @@ install: build/libcw.a
 	@cp $< $(prefix)/lib
 
 	@mkdir -p $(prefix)/include
-	@mkdir -p $(prefix)/include/cwutils
-	@rsync -a include/cwutils/ $(prefix)/include/cwutils/
+	@cp include/cwcore.h $(prefix)/include/cwcore.h
+	@cp include/cwgeometry.h $(prefix)/include/cwgeometry.h
+	@cp include/cwplatform.h $(prefix)/include/cwplatform.h
+	# @rsync -a include/cwutils/ $(prefix)/include/cwutils/
+	# @mkdir -p $(prefix)/include/cwutils
 
