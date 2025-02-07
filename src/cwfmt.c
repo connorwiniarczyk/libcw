@@ -64,10 +64,7 @@ CwStr cwfmt_dec(CwArena* a, int value, int digits) {
 
     bool is_negative = value < 0;
 
-    // if (value < 0) {
-    //     push_char(a, '-');
-    //     value *= -1;
-    // }
+    if (is_negative) value *= -1;
 
 	int i;
     for (i=0; digits == 0 ? value > 0 : i<digits; i++) {
