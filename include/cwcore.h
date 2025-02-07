@@ -22,9 +22,6 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
 
-#define cwarena_local(name, size) uint8_t name ## _mem[size]; \
-	CwArena name = { .start = name ## _mem, .end = name ## _mem + size }
-
 // -- Strings -- 
 
 typedef struct CwStr {

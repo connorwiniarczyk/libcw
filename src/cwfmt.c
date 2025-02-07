@@ -62,10 +62,12 @@ CwStr cwfmt_hex(CwArena* a, int value, int digits) {
 CwStr cwfmt_dec(CwArena* a, int value, int digits) {
     char* output = (char*)(a -> start);
 
-    if (value < 0) {
-        push_char(a, '-');
-        value *= -1;
-    }
+    bool is_negative = value < 0;
+
+    // if (value < 0) {
+    //     push_char(a, '-');
+    //     value *= -1;
+    // }
 
 	int i;
     for (i=0; digits == 0 ? value > 0 : i<digits; i++) {
@@ -75,6 +77,8 @@ CwStr cwfmt_dec(CwArena* a, int value, int digits) {
     }
 
     if (i == 0) push_char(a, '0');
+
+    if (is_negative) push_char_front(output, a, '-');
 
 	ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
     return (CwStr){ output, size };
