@@ -21,10 +21,11 @@ void cwcmd_push_arg(CwCmd* self, const char* arg) {
 
 int cwcmd_run(CwCmd* self) {
     // terminate the array with a NULL pointer
-	(void)(cwnew(&self -> memory, char*));
+    if (self -> ptr[self -> size - 1] != NULL) {
+    	(void)(cwnew(&self -> memory, char*));
+    }
 
 	const char* name = self -> ptr[0];
-	// const char **args = (self -> ptr + 1);
 	char* environment[] = { NULL };
 
 	int pid = fork();

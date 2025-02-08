@@ -11,6 +11,7 @@ cc_flags += -O2
 cc_flags += -Wall -Wextra -Werror
 
 srcs += src/cwarena.c
+srcs += src/cwpool.c
 srcs += src/cwcmd.c
 srcs += src/cwvector.c
 srcs += src/cwqueue.c
@@ -58,6 +59,3 @@ install: build/libcw.a
 	@cp include/cwcore.h $(prefix)/include/cwcore.h
 	@cp include/cwgeometry.h $(prefix)/include/cwgeometry.h
 	@cp include/cwplatform.h $(prefix)/include/cwplatform.h
-	# @rsync -a include/cwutils/ $(prefix)/include/cwutils/
-	# @mkdir -p $(prefix)/include/cwutils
-

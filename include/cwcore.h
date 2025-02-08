@@ -22,6 +22,19 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
 
+
+// -- Pool Allocator --
+
+typedef struct CwPool {
+    void* next_free;
+    size_t element_size;
+} CwPool;
+
+CwPool cwpool_create(CwArena* a, size_t element_size, int size);
+
+void* cwpool_alloc(CwPool* self);
+void  cwpool_free(CwPool* self, void* ptr);
+
 // -- Strings -- 
 
 typedef struct CwStr {
