@@ -1,5 +1,5 @@
 #include <cwcore.h>
-#include <cwplatform.h>
+#include <cwhost.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 
 static void cwpanic_out_of_memory(const char* msg) {
 	fprintf(stderr, "PANIC: %s\n", msg);
-	cwplatform_panic();
+	cwhost_exit(1);
 }
 
 // Shamelessly stolen from: https://nullprogram.com/blog/2023/09/27/

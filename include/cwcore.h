@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 // -- Arena Allocator --
 
@@ -22,9 +23,7 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
 
-
 // -- Pool Allocator --
-
 typedef struct CwPool {
     void* next_free;
     size_t element_size;
@@ -43,6 +42,7 @@ typedef struct CwStr {
 } CwStr;
 
 CwStr cwstr(const char* cstr);
+CwStr cwstr_empty();
 
 CwStr cwstr_from_file(CwArena* a, const char* path);
 CwStr cwstr_substr(CwStr self, int start, int end);
@@ -53,7 +53,8 @@ bool cwstr_equals(CwStr a, CwStr b);
 CwStr cwfmt_hex(CwArena* a, int value, int digits);
 CwStr cwfmt_dec(CwArena* a, int value, int digits);
 CwStr cwfmt_float(CwArena* a, float value, int digits);
-CwStr cwfmt(CwArena* a, char* fmt_string, ...);
+CwStr cwfmt(CwArena* a, const char* fmt_string, ...);
+CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args);
 
 typedef struct CwString {
 	char* ptr;
@@ -87,20 +88,8 @@ void cwstring_push_cstr(CwString* self, char* src);
     arr.size += 1;                           \
 } while(0)
 
-// -- Command Runner --
-
-typedef struct CwCmd {
-    const char** ptr;
-    int size;
-    CwArena mem;
-} CwCmd;
-
-CwCmd cwcmd_create(CwArena a, const char* cmd);
-void cwcmd_push_arg(CwCmd* self, const char* arg);
-int  cwcmd_run(CwCmd* self);
 
 // -- Ring Buffer --
-
 typedef struct CwRingBuffer {
     struct { void* ptr; int size; } data;
     int front;
@@ -111,5 +100,27 @@ CwRingBuffer cwringbuffer_new(CwArena* a, int element_size, int size);
 void* cwringbuffer_push(CwRingBuffer* self);
 void* cwringbuffer_next(CwRingBuffer* self);
 void* cwringbuffer_peek(CwRingBuffer* self);
+
+// -- Futures ---
+struct CwFuture;
+typedef int (PollFn)(int pc, void* data, struct CwFuture* self);
+typedef struct CwFuture {
+    int pc; // program counter
+    int err;
+
+    PollFn* poll;
+    void*   data;
+    CwArena arena;
+
+    struct CwFuture* child;
+} CwFuture;
+
+CwFuture* cwfuture_new(CwArena a, PollFn* poll, void* data);
+
+int cwfuture_poll(CwFuture* self);
+int cwfuture_run(CwFuture* self);
+int cwfuture_abort(CwFuture* self, int err);
+int cwfuture_await(CwFuture* self, CwFuture* target);
+int cwfuture_await_new(CwFuture* self, PollFn* poll, void* data);
 
 #endif

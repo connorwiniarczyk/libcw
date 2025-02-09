@@ -5,23 +5,17 @@ canopen  ?= false
 MAKEFLAGS += --no-print-directory
 
 cc_flags += -I include
-cc_flags += -I include/cwutils
 cc_flags += -g
 cc_flags += -O2
 cc_flags += -Wall -Wextra -Werror
 
 srcs += src/cwarena.c
 srcs += src/cwpool.c
-srcs += src/cwcmd.c
-srcs += src/cwvector.c
-srcs += src/cwqueue.c
-srcs += src/cwfmt.c
 srcs += src/cwarray.c
 srcs += src/cwstring.c
-srcs += src/cwbox.c
+srcs += src/cwfmt.c
+srcs += src/cwgeometry.c
 srcs += src/cwfuture.c
-srcs += src/cwsleep.c
-srcs += src/cwtimer.c
 
 ifdef platform
 srcs += src/platform_$(platform).c
@@ -57,5 +51,5 @@ install: build/libcw.a
 
 	@mkdir -p $(prefix)/include
 	@cp include/cwcore.h $(prefix)/include/cwcore.h
+	@cp include/cwhost.h $(prefix)/include/cwhost.h
 	@cp include/cwgeometry.h $(prefix)/include/cwgeometry.h
-	@cp include/cwplatform.h $(prefix)/include/cwplatform.h
