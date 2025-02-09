@@ -130,29 +130,30 @@ CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args) {
             }
 
             switch (fmt_string[i]) {
-               case 'x': (void)cwfmt_hex(a, va_arg(args, int), precision);  break;
-               case 'd': (void)cwfmt_dec(a, va_arg(args, int), precision);  break;
-               case 'f': (void)cwfmt_float(a, va_arg(args, double), precision);  break;
-               case 'c': push_char(a, va_arg(args, int)); break;
-               case 'w': {
-					CwStr str = va_arg(args, CwStr);
-					for (int i=0;i<str.size; i++) push_char(a, str.ptr[i]);
-					break;
-               }
-               case 's': {
+                case '%': push_char(a, '%'); break;
+                case 'x': (void)cwfmt_hex(a, va_arg(args, int), precision);  break;
+                case 'd': (void)cwfmt_dec(a, va_arg(args, int), precision);  break;
+                case 'f': (void)cwfmt_float(a, va_arg(args, double), precision);  break;
+                case 'c': push_char(a, va_arg(args, int)); break;
+                case 'w': {
+                	CwStr str = va_arg(args, CwStr);
+                	for (int i=0;i<str.size; i++) push_char(a, str.ptr[i]);
+                	break;
+                }
+                case 's': {
                    char* str = va_arg(args, char*);
                    for (int i=0; str[i] != '\0'; i++) push_char(a, str[i]);
                    break;
-               }
-               default: break;
+                }
+                default: break;
             }
         }
     }
 
-    push_char(a, '\0');
     // va_end(args);
 
 	ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
+    push_char(a, '\0');
     return (CwStr){ output, size };
 
 }

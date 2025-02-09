@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <wait.h>
+#include <string.h>
 #include <sys/time.h>
 
 void cwhost_exit(int code) { exit(code); }
@@ -92,8 +93,8 @@ static CwLogger logger = {0};
 
 static void print_logger(void* data, const char* message) {
     (void)(data);
-	fprintf(stderr, message);
-	fprintf(stderr, "\n");
+    write(2, message, strlen(message));
+	write(2, "\n", 1);
 }
 
 void cwlogger_init(CwArena* a, int buffer_size) {
@@ -119,12 +120,29 @@ void cwlog(const char* fmt, ...) {
     logger.log(logger.data, message.ptr);
 }
 
+void cwlog_error_handler(const char* file, int line, const char* fmt, ...) {
+    CwArena scratch = logger.fmt_buffer;
+    if (logger.log == NULL) return;
+
+    CwStr prefix = cwfmt(&scratch, "ERROR (%s line %d)", file, line);
+
+    va_list args;
+    va_start(args, fmt);
+	CwStr message = cwfmtV(&scratch, fmt, args);
+    va_end(args);
+
+    // write(2, prefix.ptr, prefix.size);
+    // write(2, message.ptr, message.size);
+
+    CwStr output = cwfmt(&scratch, "%w %w", prefix, message);
+
+    // write(2, output.ptr, output.size);
+    logger.log(logger.data, output.ptr);
+}
 
 void cwsleep_ms(int ms) {
     usleep(ms * 1000);
 }
-
-
 
 CwCmd cwcmd_create(CwArena a, const char* cmd) {
     CwCmd output;
@@ -172,32 +190,3 @@ int cwcmd_run(CwCmd* self) {
     	return WEXITSTATUS(status);
 	}
 }
-
-
-// static void* timer_thread(void* data) {
-//     int* amount = (int*)(data);
-//     cwsleep_ms(*amount);
-//     *amount = 0;
-//     return NULL;
-// }
-
-// static int poll_timer(int pc, void* data, CwFuture* self) {
-//     int remaining = *((int*)(data));
-//     switch (pc) {
-//         case 0: return 0;
-//         case 1: return remaining == 0 ? 0 : pc;
-//         default: return self -> err = 1, 0;
-//     }
-// }
-
-// CwFuture* cwtimeout_ms(CwArena a, int ms) {
-//     pthread_t id;
-//     int* remaining = cwalloc(&a, sizeof(int), _Alignof(int), 1);
-//     *remaining = ms;
-
-//     int res = pthread_create(&id, NULL, timer_thread, remaining);
-//     (void)(res);
-
-//     CwFuture* output = cwfuture_new(a, poll_timer, remaining);
-//     return output;
-// }
