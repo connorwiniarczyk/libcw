@@ -1,6 +1,6 @@
-prefix   ?= $(HOME)/.local
-platform ?= linux
-canopen  ?= false
+prefix  ?= $(HOME)/.local
+host    ?= linux
+canopen ?= false
 
 MAKEFLAGS += --no-print-directory
 
@@ -17,8 +17,10 @@ srcs += src/cwfmt.c
 srcs += src/cwgeometry.c
 srcs += src/cwfuture.c
 
-ifdef platform
-srcs += src/platform_$(platform).c
+ifeq ($(host), linux)
+srcs += src/host/linux.c
+srcs += src/host/linux_log.c
+srcs += src/host/linux_file.c
 endif
 
 ifeq ($(canopen), true)
@@ -35,6 +37,7 @@ build/libcw.a: clean $(objs)
 
 build/%.o: src/%.c
 	@mkdir -p build
+	@mkdir -p build/host
 	@printf "CC\t$<\n"
 	@$(CC) $(cc_flags) -o $@ -c $<
 

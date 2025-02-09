@@ -53,3 +53,7 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size) {
     output.end = output.start + size;
     return output;
 }
+
+int cwarena_remaining(CwArena self) {
+	return (intptr_t)(self.end) - (intptr_t)(self.start);
+}

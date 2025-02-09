@@ -114,9 +114,6 @@ bool is_digit(char c) { return c >= '0' && c <= '9'; };
 CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args) {
     char* output = (char*)(a -> start);
 
-    // va_list args;
-    // va_start(args, fmt_string);
-
     int i;
     for (i=0; fmt_string[i] != '\0'; i++) {
         char next = fmt_string[i];
@@ -150,8 +147,6 @@ CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args) {
         }
     }
 
-    // va_end(args);
-
 	ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
     push_char(a, '\0');
     return (CwStr){ output, size };
@@ -165,41 +160,4 @@ CwStr cwfmt(CwArena* a, const char* fmt_string, ...) {
     va_end(args);
 
     return output;
- //    char* output = (char*)(a -> start);
-
- //    va_list args;
- //    va_start(args, fmt_string);
-
- //    int i;
- //    for (i=0; fmt_string[i] != '\0'; i++) {
- //        char next = fmt_string[i];
- //        if (next != '%') push_char(a, next);
- //        else {
- //            int precision = 0;
- //            i += 1;
- //            if (is_digit(fmt_string[i])) {
-	// 			precision = fmt_string[i] - '0';
-	// 			i += 1;
- //            }
-
- //            switch (fmt_string[i]) {
- //               case 'x': (void)cwfmt_hex(a, va_arg(args, int), precision);  break;
- //               case 'd': (void)cwfmt_dec(a, va_arg(args, int), precision);  break;
- //               case 'f': (void)cwfmt_float(a, va_arg(args, double), precision);  break;
- //               case 'c': push_char(a, va_arg(args, int)); break;
- //               case 's': {
- //                   char* str = va_arg(args, char*);
- //                   for (int i=0; str[i] != '\0'; i++) push_char(a, str[i]);
- //                   break;
- //               }
- //               default: break;
- //            }
- //        }
- //    }
-
- //    push_char(a, '\0');
- //    va_end(args);
-
-	// ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
- //    return (CwStr){ output, size };
 }

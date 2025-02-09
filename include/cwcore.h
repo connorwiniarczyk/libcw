@@ -20,6 +20,8 @@ CwArena cwarena_create(CwAllocFn* alloc, ptrdiff_t size);
 CwArena cwarena_from_buffer(void* buffer, ptrdiff_t size);
 CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 
+int cwarena_remaining(CwArena self);
+
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
 
