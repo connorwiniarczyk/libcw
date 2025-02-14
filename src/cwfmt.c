@@ -1,16 +1,5 @@
-#include <cwutils/cwarena.h>
+#include <cwcore.h>
 #include <math.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdbool.h>
-
-#include <stdio.h>
-
-typedef struct CwStr {
-	char* ptr;
-	int   size;
-} CwStr;
 
 static void push_char(CwArena* a, char c) {
     char* next = cwalloc(a, 1, 1, 1);
@@ -25,19 +14,6 @@ static void push_char_front(char* front, CwArena* a, char c) {
 
     *front = c;
 }
-
-CwStr cwstr_read_file(CwArena* a, char* path) {
-    CwStr output = { (char*)(a -> start), 0 };
-    FILE* file = fopen(path, "rb");
-    if (file == NULL) return (CwStr){ NULL, 0 };
-
-	int bytes_read;
-	while ((bytes_read = fread(cwalloc(a, 1, 1, 1), 1, 1, file)) == 1);
-
-	return output;
-
-}
-
 
 CwStr cwfmt_hex(CwArena* a, int value, int digits) {
     char* output = (char*)(a -> start);
@@ -111,11 +87,9 @@ CwStr cwfmt_float(CwArena* a, float value, int precision) {
 
 bool is_digit(char c) { return c >= '0' && c <= '9'; };
 
-CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args) {
+CwStr cwfmt_vargs(CwArena* a, const char* fmt_string, va_list args) {
     char* output = (char*)(a -> start);
-
-    int i;
-    for (i=0; fmt_string[i] != '\0'; i++) {
+    for (int i=0; fmt_string[i] != '\0'; i++) {
         char next = fmt_string[i];
         if (next != '%') push_char(a, next);
         else {
@@ -147,17 +121,25 @@ CwStr cwfmtV(CwArena* a, const char* fmt_string, va_list args) {
         }
     }
 
-	ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
-    push_char(a, '\0');
+	ptrdiff_t size = cwarena_allocated(*a, output);
     return (CwStr){ output, size };
-
 }
 
 CwStr cwfmt(CwArena* a, const char* fmt_string, ...) {
     va_list args;
     va_start(args, fmt_string);
-    CwStr output = cwfmtV(a, fmt_string, args);
+    CwStr output = cwfmt_vargs(a, fmt_string, args);
     va_end(args);
 
     return output;
+}
+
+char* cwfmt_cstr(CwArena* a, const char* fmt_string, ...) {
+    va_list args;
+    va_start(args, fmt_string);
+    CwStr output = cwfmt_vargs(a, fmt_string, args);
+    va_end(args);
+
+    cwarena_push_byte(a, '\0');
+    return output.ptr;
 }

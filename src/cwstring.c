@@ -10,6 +10,14 @@ CwStr cwstr_empty() {
     return (CwStr){ .ptr = NULL, .size = 0 };
 }
 
+CwStr cwstr_builder(CwArena* a) {
+    CwStr output;
+    output.ptr = (char*)(a -> start);
+    output.size = 0;
+
+    return output;
+}
+
 bool cwstr_equals(CwStr a, CwStr b) {
     if (a.size != b.size) return false;
 
@@ -20,45 +28,12 @@ bool cwstr_equals(CwStr a, CwStr b) {
     return true;
 }
 
-
-
 bool cwstr_contains(CwStr self, char c) {
     for (int i=0; i<self.size; i++) {
 		if (self.ptr[i] == c) return true;
     }
 
     return false;
-}
-
-CwStr cwstring_finish(CwString* self, CwArena* a) {
-	*a = self -> mem;
-	self -> mem = cwarena_empty();
-	return (CwStr){ .ptr = self -> ptr, .size = self -> size };
-}
-
-void cwstring_clear(CwString* self) {
-    self -> mem.start = (void*)self -> ptr;
-}
-
-// int cwstring_write_to_file(CwString* self, char* path) {
-//     FILE* file = fopen(path, "wb");
-//     if (file == NULL) return 1;
-
-//     size_t bytes_written = fwrite(self -> ptr, 1, self -> size, file);
-//     if (bytes_written != self -> size) return 2;
-
-//     return 0;
-// }
-
-
-CwString cwstring_new(CwArena a) {
-    CwString output = {
-		.ptr = (char*)a.start,
-		.size = 0,
-		.mem = a,
-    };
-
-    return output;
 }
 
 CwStr cwstr_substr(CwStr self, int start, int end) {
@@ -70,24 +45,95 @@ CwStr cwstr_substr(CwStr self, int start, int end) {
 
 }
 
-void cwstring_push(CwString* self, char c) {
-    char* next = cwalloc(&self -> mem, 1, 1, 1);
-    *next = c;
+
+int cwstr_find(CwStr input, char c) {
+	for (int i = 0; i<input.size; i++) {
+    	if (input.ptr[i] == c) return i;
+	}
+
+	return -1;
 }
 
-void cwstring_push_front(CwString* self, char c) {
-    char* next = cwalloc(&self -> mem, 1, 1, 1);
+int cwstr_find_last(CwStr input, char c) {
+    int output = -1;
+	for (int i = 0; i<input.size; i++) {
+    	if (input.ptr[i] == c) output = i;
+	}
 
-    // move every character up by one
-    for (; next > self -> ptr; next--) *next = *(next - 1);
-
-    *next = c;
+	return output;
 }
 
-void cwstring_push_slice(CwString* self, char* src, int size) {
-    for (int i=0; i<size; i++) cwstring_push(self, src[i]);
+int cwstr_parse_int(CwStr input) {
+    int output = 0;
+    int digit = 0;
+
+    bool negative = false;
+    if (input.size > 0 && input.ptr[0] == '-') {
+        negative = true;
+        input = cwstr_substr(input, 1, input.size);
+    }
+
+    while (input.size > 0) {
+        char next = input.ptr[input.size - 1];
+        assert(next >= '0' && next <= '9');
+
+        output += (next - '0');
+        digit += 1;
+        input = cwstr_substr(input, 0, input.size - 1);
+    }
+
+    if (negative) output *= -1;
+
+    return output;
 }
 
-void cwstring_push_cstr(CwString* self, char* src) {
-    for (int i=0; src[i] != '\0'; i++) cwstring_push(self, src[i]);
+CwStr cwstr_split(CwStr* self, char c) {
+	int index = cwstr_find(*self, c);
+	if (index < 0) return cwstr_empty();
+
+	CwStr output = cwstr_substr(*self, 0, index);
+	*self = cwstr_substr(*self, index + 1, self -> size);
+
+	return output;
+}
+
+CwStr cwpath_get_file(CwStr input) {
+	int separator = cwstr_find_last(input, '/');
+	assert(separator <= input.size);
+
+	if (separator < 0) return input;
+	if (separator == input.size) return cwstr_empty();
+
+	return cwstr_substr(input, separator + 1, input.size);
+}
+
+
+CwStr cwpath_get_dir(CwStr input) {
+	int separator = cwstr_find_last(input, '/');
+	assert(separator <= input.size);
+
+	if (separator < 1) return cwstr_empty();
+	if (separator == input.size) return input;
+
+	return cwstr_substr(input, 0, separator - 1);
+}
+
+CwStr cwpath_get_base(CwStr input) {
+	CwStr filename = cwpath_get_file(input);
+
+	int separator = cwstr_find(filename, '.');
+	if (separator < 1) return cwstr_empty();
+
+	return cwstr_substr(filename, 0, separator);
+
+}
+
+CwStr cwpath_get_ext(CwStr input) {
+	CwStr filename = cwpath_get_file(input);
+
+	int separator = cwstr_find(filename, '.');
+	if (separator >= filename.size) return cwstr_empty();
+
+	return cwstr_substr(filename, separator + 1, filename.size);
+
 }

@@ -57,13 +57,13 @@ int cwcmd_run(CwCmd* self);
 
 // -- Logging --
 typedef struct CwLogger {
-    void (*log)(void* data, const char* message);
+    void (*log)(void* data, CwStr message);
     void* data;
     CwArena fmt_buffer;
 } CwLogger;
 
 void cwlogger_init(CwArena* a, int buffer_size);
-void cwlogger_set(void (*log)(void* data, const char* message), void* data);
+void cwlogger_set(void (*log)(void* data, CwStr message), void* data);
 
 void cwlog(const char* fmt, ...);
 void cwlog_error_handler(const char* file, int line, const char* message, ...);

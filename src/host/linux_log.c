@@ -7,9 +7,9 @@
 
 static CwLogger logger = {0};
 
-static void print_logger(void* data, const char* message) {
+static void print_logger(void* data, CwStr message) {
     (void)(data);
-    write(2, message, strlen(message));
+    write(2, message.ptr, message.size);
 	write(2, "\n", 1);
 }
 
@@ -19,7 +19,7 @@ void cwlogger_init(CwArena* a, int buffer_size) {
 	logger.fmt_buffer = cwarena_reserve(a, buffer_size);
 }
 
-void cwlogger_set(void (*log)(void* data, const char* message), void* data) {
+void cwlogger_set(void (*log)(void* data, CwStr message), void* data) {
 	logger.log = log;
 	logger.data = data;
 }
@@ -30,10 +30,10 @@ void cwlog(const char* fmt, ...) {
 
     va_list args;
     va_start(args, fmt);
-	CwStr message = cwfmtV(&scratch, fmt, args);
+	CwStr message = cwfmt_vargs(&scratch, fmt, args);
     va_end(args);
 
-    logger.log(logger.data, message.ptr);
+    logger.log(logger.data, message);
 }
 
 void cwlog_error_handler(const char* file, int line, const char* fmt, ...) {
@@ -44,9 +44,9 @@ void cwlog_error_handler(const char* file, int line, const char* fmt, ...) {
 
     va_list args;
     va_start(args, fmt);
-	CwStr message = cwfmtV(&scratch, fmt, args);
+	CwStr message = cwfmt_vargs(&scratch, fmt, args);
     va_end(args);
 
     CwStr output = cwfmt(&scratch, "%w %w", prefix, message);
-    logger.log(logger.data, output.ptr);
+    logger.log(logger.data, output);
 }

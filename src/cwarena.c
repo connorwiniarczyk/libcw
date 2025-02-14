@@ -26,6 +26,16 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 	return memset(output, 0, count * size);
 }
 
+void* cwarena_push_byte(CwArena* self, uint8_t byte) {
+	uint8_t* next = cwalloc(self, 1, 1, 1);
+	*next = byte;
+	return next;
+}
+
+int cwarena_allocated(CwArena self, void* start) {
+    return (intptr_t)(self.start) - (intptr_t)(start);
+}
+
 
 CwArena cwarena_empty() {
     return (CwArena) { .start = NULL, .end = NULL };

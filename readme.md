@@ -1,5 +1,8 @@
 # libcw
 
+libcw is a library I wrote for myself to make programming in C more productive
+and enjoyable.
+
 libcw is a personal set of pure C utility libraries to help make up for
 the languages lack of a modern standard library. It implements a simple
 arena allocator and builds on top of that a sort of psuedo standard library
