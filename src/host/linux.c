@@ -7,10 +7,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <wait.h>
 #include <string.h>
-#include <dirent.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 
@@ -91,10 +89,11 @@ CwCmd cwcmd_create(CwArena a, const char* cmd) {
 
 void cwcmd_push_arg(CwCmd* self, const char* arg) {
     *(const char**)(cwnew(&self -> mem, char*)) = (char*)(arg);
+    self -> size += 1;
 }
 
 
-void cwcmd_push_arglist(CwCmd* self, char** arglist) {
+void cwcmd_push_arglist(CwCmd* self, const char** arglist) {
     for (int i=0; arglist[i] != NULL; i++) {
         cwcmd_push_arg(self, arglist[i]);
     }

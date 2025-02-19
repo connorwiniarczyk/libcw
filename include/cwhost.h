@@ -49,9 +49,9 @@ typedef struct CwCmd {
 
 CwCmd cwcmd_create(CwArena a, const char* cmd);
 void cwcmd_push_arg(CwCmd* self, const char* arg);
-void cwcmd_push_arglist(CwCmd* self, char** arglist);
+void cwcmd_push_arglist(CwCmd* self, const char** arglist);
 
-#define cwcmd_push_args(self, ...) do { char* args[] = {__VA_ARGS__, NULL}; cwcmd_push_arglist(self, args); } while(0);
+#define cwcmd_push_args(self, ...) do { const char* args[] = {__VA_ARGS__, NULL}; cwcmd_push_arglist(self, args); } while(0);
 
 int cwcmd_run(CwCmd* self);
 

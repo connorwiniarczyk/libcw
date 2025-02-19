@@ -10,6 +10,15 @@ static void cwpanic_out_of_memory(const char* msg) {
 	cwhost_exit(1);
 }
 
+void* cwarena_align_to(CwArena* a, ptrdiff_t align) {
+	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);
+	ptrdiff_t available = a -> end - a -> start - padding;
+	if (available < 0) cwpanic("arena memory overflowed");
+
+	a -> start += padding;
+	return a -> start;
+}
+
 // Shamelessly stolen from: https://nullprogram.com/blog/2023/09/27/
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 
