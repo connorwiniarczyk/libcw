@@ -21,6 +21,7 @@ ifeq ($(host), linux)
 srcs += src/host/linux.c
 srcs += src/host/linux_log.c
 srcs += src/host/linux_file.c
+srcs += src/host/linux_build.c
 endif
 
 ifeq ($(canopen), true)

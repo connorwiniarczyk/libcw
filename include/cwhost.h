@@ -20,6 +20,7 @@ CwStr cwhost_read_file(CwArena* a, const char* path);
 int cwhost_write_file(const char* path, CwStr data);
 int cwhost_append_file(const char* path, CwStr data);
 int cwhost_delete_file(const char* path);
+int cwhost_copy_file(const char* src, const char* dest);
 
 typedef struct CwPathList {
     char** ptr;
@@ -29,7 +30,6 @@ typedef struct CwPathList {
 CwPathList cwhost_read_dir(CwArena* a, const char* path);
 int cwhost_create_dir(const char* path);
 int cwhost_delete_dir(const char* path);
-
 
 typedef struct CwPipe {
 	int input;
@@ -47,13 +47,29 @@ typedef struct CwCmd {
     struct { int in; int out; int err; } io;
 } CwCmd;
 
-CwCmd cwcmd_create(CwArena a, const char* cmd);
+CwCmd cwcmd_create(const char* cmd, CwArena* a, int max_args);
+
 void cwcmd_push_arg(CwCmd* self, const char* arg);
 void cwcmd_push_arglist(CwCmd* self, const char** arglist);
 
 #define cwcmd_push_args(self, ...) do { const char* args[] = {__VA_ARGS__, NULL}; cwcmd_push_arglist(self, args); } while(0);
 
 int cwcmd_run(CwCmd* self);
+
+
+// -- Buildtool Helpers --
+
+extern char*  cwbuild_prefix;
+extern char*  cwbuild_dest;
+extern char** cwbuild_flags;
+extern char** cwbuild_include_dirs;
+extern char** cwbuild_lib_dirs;
+extern char** cwbuild_libs;
+
+void cwbuild_init(CwArena* a, const char* prefix);
+
+CwCmd cwbuild_compile_cmd(CwArena* a, const char* src);
+CwCmd cwbuild_link_cmd(CwArena* a, const char* dest_path, const char** objects);
 
 // -- Logging --
 typedef struct CwLogger {

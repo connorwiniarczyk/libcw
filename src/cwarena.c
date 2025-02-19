@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void cwpanic_out_of_memory(const char* msg) {
-	fprintf(stderr, "PANIC: %s\n", msg);
-	cwhost_exit(1);
-}
+// static void cwpanic_out_of_memory(const char* msg) {
+// 	fprintf(stderr, "PANIC: %s\n", msg);
+// 	cwhost_exit(1);
+// }
 
 void* cwarena_align_to(CwArena* a, ptrdiff_t align) {
 	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);
@@ -27,7 +27,7 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 	ptrdiff_t available = a -> end - a -> start - padding;
 
 	if (available < 0 || count > available / size) {
-    	cwpanic_out_of_memory("arena memory overflowed");
+        cwpanic("arena memory overflowed");
 	}
 
 	void* output = a -> start + padding;
@@ -38,6 +38,12 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count) {
 void* cwarena_push_byte(CwArena* self, uint8_t byte) {
 	uint8_t* next = cwalloc(self, 1, 1, 1);
 	*next = byte;
+	return next;
+}
+
+void* cwarena_push_ptr(CwArena* self, void* ptr) {
+	void** next = cwalloc(self, sizeof(void*), alignof(void*), 1);
+	*next = ptr;
 	return next;
 }
 
@@ -60,7 +66,7 @@ CwArena cwarena_from_buffer(void* buffer, ptrdiff_t size) {
 CwArena cwarena_create(CwAllocFn* alloc, ptrdiff_t size) {
     CwArena output = {0};
     output.start = alloc(size);
-    if (output.start == NULL) cwpanic_out_of_memory("arena initial allocation failed");
+    if (output.start == NULL) cwpanic("arena initial allocation failed");
 
     output.end = output.start ? output.start + size : 0;
     return output;
@@ -71,6 +77,10 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size) {
     output.start = cwalloc(self, size, 1, 1);
     output.end = output.start + size;
     return output;
+}
+
+CwArena cwarena_reserve_all(CwArena* self) {
+    return cwarena_reserve(self, cwarena_remaining(*self));
 }
 
 int cwarena_remaining(CwArena self) {

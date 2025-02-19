@@ -73,12 +73,19 @@ CwPipe cwhost_make_pipe() {
     return output;
 }
 
-CwCmd cwcmd_create(CwArena a, const char* cmd) {
+CwCmd cwcmd_create(const char* cmd, CwArena* a, int max_args) {
     CwCmd output;
-    output.ptr = cwnew(&a, char*);
+	cwarena_align_to(a, alignof(char*));
+
+
+    // output.mem = cwarena_reserve(a, sizeof(char*) * max_args);
+ 
+	if (max_args <= 0) output.mem = cwarena_reserve_all(a);
+	else output.mem = cwarena_reserve(a, sizeof(char*) * max_args);
+
+    output.ptr = cwnew(&output.mem, char*);
     output.ptr[0] = cmd;
     output.size = 1;
-    output.mem = a;
 
     output.io.in  = 0;
     output.io.out = 1;

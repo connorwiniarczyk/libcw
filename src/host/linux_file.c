@@ -2,13 +2,15 @@
 #include <cwhost.h>
 #include <errno.h>
 #include <stdio.h>
-#include <sys/stat.h>
-#include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdalign.h>
+
+#include <sys/stat.h>
+#include <sys/stat.h>
+#include <sys/sendfile.h>
 
 CwStr cwhost_read_file(CwArena* a, const char* path) {
 	CwStr output;
@@ -81,6 +83,21 @@ int cwhost_delete_dir(const char* path) {
 	if (err == -1) return errno;
 
 	else return 0;
+}
+
+int cwhost_copy_file(const char* src_path, const char* dest_path) {
+	int src = open(src_path, O_RDONLY);
+	if (src < 0) return errno;
+
+	int dest = open(dest_path, O_CREAT | O_WRONLY, 0664);
+	if (dest < 0) return errno;
+
+	int n;
+	do { n = sendfile(dest, src, 0, 1 << 14); } while(n > 0);
+
+	if (n == -1) return errno;
+
+	return 0;
 }
 
 CwPathList cwhost_read_dir(CwArena* a, const char* path) {

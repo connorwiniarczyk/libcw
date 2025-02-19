@@ -20,8 +20,10 @@ CwArena cwarena_empty();
 CwArena cwarena_create(CwAllocFn* alloc, ptrdiff_t size);
 CwArena cwarena_from_buffer(void* buffer, ptrdiff_t size);
 CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
+CwArena cwarena_reserve_all(CwArena* self);
 
 void* cwarena_push_byte(CwArena* self, uint8_t byte);
+void* cwarena_push_ptr(CwArena* self, void* ptr);
 void* cwarena_align_to(CwArena* self, ptrdiff_t align);
 
 int cwarena_allocated(CwArena self, void* start);
