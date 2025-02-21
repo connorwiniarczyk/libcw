@@ -1,30 +1,7 @@
 # libcw
 
 libcw is a library I wrote for myself to make programming in C more productive
-and enjoyable.
-
-libcw is a personal set of pure C utility libraries to help make up for
-the languages lack of a modern standard library. It implements a simple
-arena allocator and builds on top of that a sort of psuedo standard library
-complete with dynamic arrays, strings, something resembling async/await,
-and anything else I can think to throw in here.
-
-
-## Arena Allocators
-
-libcw's allocator is called CwArena. Arenas allocate blocks of memory linearly
-into a single continuous buffer. Instead of calling free on individual pointers,
-arenas free memory by resetting themselves back to a previous state. This means
-that if any memory is freed, all the memory allocated after it is freed as well.
-This is slightly more limiting than the traditional way, but has some distinct
-advantages.
-
-```c
-#include <cwutils/cwarena.h>
-
-int main() {
-	CwArena a = cwarena_new(1 << 10);
-
-}
-```
-
+and enjoyable. C, despite being very old and flawed, C has remained one of the
+best programming languages, and has slowly made itself my favorite to work in.
+That being said, the C standard library is really not very good, and I've found it
+to be too painful to use for basically anything non-trivial.

@@ -59,7 +59,7 @@ int cwhost_create_dir(const char* input) {
     for (int i=0; i<path.size; i++, subpath.size ++) {
         if (path.ptr[i] == '/' && i != 0) {
             CwArena a = cwarena_from_buffer(fmt_buffer, 1 << 8);
-            char* cstr = cwfmt(&a, "%w", subpath).ptr;
+            char* cstr = cwfmt_cstr(&a, "%w", subpath);
             err = mkdir(cstr, 0755);
             if (err && errno != EEXIST) return errno;
         }

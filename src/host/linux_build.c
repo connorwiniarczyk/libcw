@@ -26,6 +26,8 @@ void cwbuild_init(CwArena* a, const char* prefix) {
 	cwarena_push_ptr(a, "-I");
 	cwarena_push_ptr(a, "src");
 	cwarena_push_ptr(a, "-I");
+	cwarena_push_ptr(a, "build");
+	cwarena_push_ptr(a, "-I");
 	cwarena_push_ptr(a, "include");
 	cwarena_push_ptr(a, "-I");
 	cwarena_push_ptr(a, local_headers);
