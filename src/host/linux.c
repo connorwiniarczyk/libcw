@@ -99,11 +99,40 @@ void cwcmd_push_arg(CwCmd* self, const char* arg) {
     self -> size += 1;
 }
 
-
 void cwcmd_push_arglist(CwCmd* self, const char** arglist) {
     for (int i=0; arglist[i] != NULL; i++) {
         cwcmd_push_arg(self, arglist[i]);
     }
+}
+
+int cwcmd_spawn(CwCmd* self) {
+    // terminate the array with a NULL pointer
+    if (self -> ptr[self -> size - 1] != NULL) {
+    	(void)(cwnew(&self -> mem, char*));
+    }
+
+	const char* name = self -> ptr[0];
+
+	int pid = fork();
+	if (pid == 0) {
+    	if (self -> io.in  != 0) dup2(self -> io.in,  0);
+    	if (self -> io.out != 1) dup2(self -> io.out, 1);
+    	if (self -> io.err != 2) dup2(self -> io.err, 2);
+
+    	int err = execvp(name, (char* const*)(self -> ptr));
+    	return err;
+	} 
+
+	else return pid;
+}
+
+int cwcmd_await(int pid) {
+	int status;
+	do {
+    	waitpid(pid, &status, 0);
+	} while (WIFEXITED(status) == false);
+
+	return WEXITSTATUS(status);
 }
 
 int cwcmd_run(CwCmd* self) {

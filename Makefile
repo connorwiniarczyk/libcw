@@ -22,6 +22,7 @@ srcs += src/host/linux.c
 srcs += src/host/linux_log.c
 srcs += src/host/linux_file.c
 srcs += src/host/linux_build.c
+srcs += src/host/linux_socket.c
 endif
 
 ifeq ($(canopen), true)

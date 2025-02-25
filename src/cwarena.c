@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// static void cwpanic_out_of_memory(const char* msg) {
-// 	fprintf(stderr, "PANIC: %s\n", msg);
-// 	cwhost_exit(1);
-// }
-
 void* cwarena_align_to(CwArena* a, ptrdiff_t align) {
 	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);
 	ptrdiff_t available = a -> end - a -> start - padding;

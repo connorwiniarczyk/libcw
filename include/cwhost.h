@@ -15,7 +15,6 @@ int64_t cwhost_get_monotime();
 CwFuture* cwtimeout_ms(CwArena a, int64_t ms);
 
 // -- File IO --
-
 CwStr cwhost_read_file(CwArena* a, const char* path);
 int cwhost_write_file(const char* path, CwStr data);
 int cwhost_append_file(const char* path, CwStr data);
@@ -56,6 +55,8 @@ void cwcmd_push_arglist(CwCmd* self, const char** arglist);
 
 int cwcmd_run(CwCmd* self);
 
+int cwcmd_spawn(CwCmd* self);
+int cwcmd_await(int pid);
 
 // -- Buildtool Helpers --
 
@@ -86,5 +87,12 @@ void cwlog_error_handler(const char* file, int line, const char* message, ...);
 
 #define cwlog_error(...) cwlog_error_handler(__FILE__, __LINE__, __VA_ARGS__)
 #define cwpanic(...) do { cwlog_error_handler(__FILE__, __LINE__, __VA_ARGS__); cwhost_exit(1); } while(0)
+
+// -- Sockets --
+int cwhost_cansocket_create();
+int cwhost_cansocket_bind(int fd, const char* interface);
+int cwhost_cansocket_set_nonblocking(int fd);
+int cwhost_cansocket_transmit_ready(int fd);
+int cwhost_cansocket_receive_ready(int fd);
 
 #endif
