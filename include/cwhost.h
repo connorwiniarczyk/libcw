@@ -68,6 +68,7 @@ extern char** cwbuild_lib_dirs;
 extern char** cwbuild_libs;
 
 void cwbuild_init(CwArena* a, const char* prefix);
+void cwbuild_init_mingw(CwArena* a, const char* prefix);
 
 CwCmd cwbuild_compile_cmd(CwArena* a, const char* src);
 CwCmd cwbuild_link_cmd(CwArena* a, const char* dest_path, const char** objects);

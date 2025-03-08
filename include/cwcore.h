@@ -22,19 +22,21 @@ CwArena cwarena_from_buffer(void* buffer, ptrdiff_t size);
 CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 CwArena cwarena_reserve_all(CwArena* self);
 
-void* cwarena_push_byte(CwArena* self, uint8_t byte);
-void* cwarena_push_ptr(CwArena* self, void* ptr);
 void* cwarena_align_to(CwArena* self, ptrdiff_t align);
+
+void* cwarena_push_byte(CwArena* self, uint8_t byte);
+void* cwarena_push_ptr(CwArena* self, const void* ptr);
+
+void* cwarena_push_list(CwArena* self, const void** data);
+#define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
 
 int cwarena_allocated(CwArena self, void* start);
 int cwarena_remaining(CwArena self);
 
-
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
-#define cwnew(a, t) cwalloc(a, sizeof(t), _Alignof(t), 1)
+#define cwnew(a, t) cwalloc(a, sizeof(t), alignof(t), 1)
 
 #define cwarena_push(a, t, value) do { *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = value; } while(0)
-
 
 // -- Pool Allocator --
 typedef struct CwPool {

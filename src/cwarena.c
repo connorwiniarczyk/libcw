@@ -36,10 +36,18 @@ void* cwarena_push_byte(CwArena* self, uint8_t byte) {
 	return next;
 }
 
-void* cwarena_push_ptr(CwArena* self, void* ptr) {
+void* cwarena_push_ptr(CwArena* self, const void* ptr) {
 	void** next = cwalloc(self, sizeof(void*), alignof(void*), 1);
-	*next = ptr;
+	*next = (void*)ptr;
 	return next;
+}
+
+void* cwarena_push_list(CwArena* a, const void** src) {
+    void* output = cwarena_align_to(a, alignof(void**));
+    for (int i=0; src[i] != NULL; i++) {
+        cwarena_push_ptr(a, src[i]);
+    }
+	return output;
 }
 
 int cwarena_allocated(CwArena self, void* start) {
