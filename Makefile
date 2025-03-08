@@ -1,6 +1,5 @@
 prefix  ?= $(HOME)/.local
-host    ?= linux
-canopen ?= false
+host    ?= windows
 
 MAKEFLAGS += --no-print-directory
 
@@ -18,28 +17,35 @@ srcs += src/cwgeometry.c
 srcs += src/cwfuture.c
 
 ifeq ($(host), linux)
+build = build
+lib = lib
+
 srcs += src/host/linux.c
 srcs += src/host/linux_log.c
 srcs += src/host/linux_file.c
 srcs += src/host/linux_build.c
 srcs += src/host/linux_socket.c
+
+
+else ifeq ($(host), windows)
+CC = x86_64-w64-mingw32-gcc
+build = build.mingw
+lib  = lib.mingw
+
+srcs += src/host/windows.c
+
 endif
 
-ifeq ($(canopen), true)
-srcs += src/cwcanopen.c
-cc_flags += -I $(prefix)/include
-endif
+objs += $(srcs:src/%.c=$(build)/%.o)
 
-objs += $(srcs:src/%.c=build/%.o)
-
-build/libcw.a: clean $(objs)
-	@mkdir -p build
+$(build)/libcw.a: clean $(objs)
+	@mkdir -p $(build)
 	@printf "AR\t$@\n"
 	@$(AR) -rc $@ $(objs)
 
-build/%.o: src/%.c
-	@mkdir -p build
-	@mkdir -p build/host
+$(build)/%.o: src/%.c
+	@mkdir -p $(build)
+	@mkdir -p $(build)/host
 	@printf "CC\t$<\n"
 	@$(CC) $(cc_flags) -o $@ -c $<
 
@@ -48,11 +54,11 @@ clean:
 	@rm -rf build
 .PHONY: clean
 
-install: build/libcw.a
+install: $(build)/libcw.a
 	@printf "INSTALLING\n"
-	@mkdir -p $(prefix)/lib
-	@rm -f $(prefix)/lib/libcw.a
-	@cp $< $(prefix)/lib
+	@mkdir -p $(prefix)/$(lib)
+	@rm -f $(prefix)/$(lib)/libcw.a
+	@cp $< $(prefix)/$(lib)
 
 	@mkdir -p $(prefix)/include
 	@cp include/cwcore.h $(prefix)/include/cwcore.h
