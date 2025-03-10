@@ -32,10 +32,6 @@ void cwbuild_init(CwArena* a, const char* prefix) {
 	cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
 	cwarena_push_ptr(a, local_libs);
 	cwarena_push_ptr(a, NULL);
-
-	// cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
-	// cwarena_push_ptr(a, local_libs);
-	// cwarena_push_ptr(a, NULL);
 }
 
 void cwbuild_init_mingw(CwArena* a, const char* prefix) {
@@ -46,7 +42,7 @@ void cwbuild_init_mingw(CwArena* a, const char* prefix) {
     static char* flags[] = { "-g", "-Wall", "-Wextra", "-Werror", "-static-libgcc", NULL };
     cwbuild_flags = flags;
 
-    static char* libs[] = { "-lmingw32", "-lwinmm", "-lgdi32", NULL };
+    static char* libs[] = { "-lcw", "-lmingw32", "-lwinmm", "-lgdi32", NULL };
     cwbuild_libs = libs;
     cwbuild_dest = "build.mingw";
 
@@ -61,11 +57,6 @@ void cwbuild_init_mingw(CwArena* a, const char* prefix) {
 	cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
 	cwarena_push_ptr(a, local_libs);
 	cwarena_push_ptr(a, NULL);
-
-	cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
-	cwarena_push_ptr(a, local_libs);
-	cwarena_push_ptr(a, NULL);
-
 }
 
 CwCmd cwbuild_compile_cmd(CwArena* a, const char* src) {
@@ -94,6 +85,21 @@ CwCmd cwbuild_link_cmd(CwArena* a, const char* dest, const char** objects) {
     cwcmd_push_arglist(&output, (const char**)cwbuild_lib_dirs);
     cwcmd_push_arglist(&output, (const char**)cwbuild_libs);
     cwcmd_push_args(&output, "-o", dest_path);
+
+    *a = output.mem;
+    output.mem = cwarena_reserve(a, sizeof(void*));
+
+    return output;
+}
+
+CwCmd cwbuild_archive_cmd(CwArena* a, const char* dest, const char** objects) {
+    char* dest_path = cwfmt_cstr(a, "%s/%s", cwbuild_dest, dest);
+
+    CwCmd output = cwcmd_create("ar", a, 0);
+    cwcmd_push_arg(&output, "-rc");
+    cwcmd_push_arg(&output, dest_path);
+
+	cwcmd_push_arglist(&output, objects);
 
     *a = output.mem;
     output.mem = cwarena_reserve(a, sizeof(void*));

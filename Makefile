@@ -1,5 +1,5 @@
 prefix  ?= $(HOME)/.local
-host    ?= windows
+host    ?= linux
 
 MAKEFLAGS += --no-print-directory
 
@@ -33,6 +33,7 @@ build = build.mingw
 lib  = lib.mingw
 
 srcs += src/host/windows.c
+srcs += src/host/windows_log.c
 
 endif
 
@@ -51,7 +52,7 @@ $(build)/%.o: src/%.c
 
 clean:
 	@printf "CLEAN\n"
-	@rm -rf build
+	@rm -rf $(build)
 .PHONY: clean
 
 install: $(build)/libcw.a
