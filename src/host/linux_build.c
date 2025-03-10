@@ -10,8 +10,18 @@ char** cwbuild_include_dirs;
 char** cwbuild_lib_dirs;
 char** cwbuild_libs;
 
-static char* default_flags[] = { "-g", "-Wall", "-Wextra", "-Werror", NULL };
+bool cwbuild_debug_symbols = true;
+bool cwbuild_pedantic = true;
+bool cwbuild_strict = true;
+
+static char* default_flags[] = { NULL };
 static char* default_libs[]  = { "-lcw", "-lc", "-lm", NULL };
+
+static void cwbuild_push_flags(CwCmd* cmd) {
+    if (cwbuild_debug_symbols) cwcmd_push_args(cmd, "-g");
+    if (cwbuild_pedantic) cwcmd_push_args(cmd, "-Wextra", "-Wall");
+    if (cwbuild_strict) cwcmd_push_args(cmd, "-Werror");
+}
 
 void cwbuild_init(CwArena* a, const char* prefix) {
     cwbuild_compiler = "gcc";
@@ -39,7 +49,7 @@ void cwbuild_init_mingw(CwArena* a, const char* prefix) {
     cwbuild_prefix = (char*)prefix;
 
     // static char* flags[] = { "-g", "-Wall", "-Wextra", "-Werror", "-mwindows", "-static-libgcc", NULL };
-    static char* flags[] = { "-g", "-Wall", "-Wextra", "-Werror", "-static-libgcc", NULL };
+    static char* flags[] = { "-static-libgcc", NULL };
     cwbuild_flags = flags;
 
     static char* libs[] = { "-lcw", "-lmingw32", "-lwinmm", "-lgdi32", NULL };
@@ -64,6 +74,8 @@ CwCmd cwbuild_compile_cmd(CwArena* a, const char* src) {
     char* dest = cwfmt_cstr(a, "%s/%w.o", cwbuild_dest, base_name);
 
     CwCmd output = cwcmd_create(cwbuild_compiler, a, 0);
+    cwbuild_push_flags(&output);
+
     cwcmd_push_arglist(&output, (const char**)cwbuild_flags);
     cwcmd_push_arglist(&output, (const char**)cwbuild_include_dirs);
     cwcmd_push_args(&output, "-o", dest);

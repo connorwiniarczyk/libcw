@@ -38,6 +38,14 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 
 #define cwarena_push(a, t, value) do { *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = value; } while(0)
 
+#define cwarena_push_array(a, t, ...) do { \
+    t values[] = { __VA_ARGS__ };    \
+    int length = sizeof(values) / sizeof(values[0]); \
+    for (int i=0; i < length; i++) {  \
+        *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = values[i];  \
+	}  \
+} while(0)
+
 // -- Pool Allocator --
 typedef struct CwPool {
     void* next_free;

@@ -67,6 +67,10 @@ extern char** cwbuild_include_dirs;
 extern char** cwbuild_lib_dirs;
 extern char** cwbuild_libs;
 
+extern bool cwbuild_debug_symbols;
+extern bool cwbuild_pedantic;
+extern bool cwbuild_strict;
+
 void cwbuild_init(CwArena* a, const char* prefix);
 void cwbuild_init_mingw(CwArena* a, const char* prefix);
 
