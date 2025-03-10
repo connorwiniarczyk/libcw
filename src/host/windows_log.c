@@ -1,15 +1,15 @@
 #include <cwcore.h>
 #include <cwhost.h>
-#include <string.h>
 
-// -- Logging Stuff --
+#include <io.h>
 
 static CwLogger logger = {0};
 
 static void print_logger(void* data, CwStr message) {
+    _write(2, message.ptr, message.size);
+	_write(2, "\n", 1);
+
     (void)(data);
-    write(2, message.ptr, message.size);
-	write(2, "\n", 1);
 }
 
 void cwlogger_init(CwArena* a, int buffer_size) {
