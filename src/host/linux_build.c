@@ -29,7 +29,6 @@ void cwbuild_init(CwArena* a, const char* prefix) {
 
     cwbuild_flags = default_flags;
     cwbuild_libs  = default_libs;
-    cwbuild_dest  = "build";
 
 	char* local_headers = cwfmt_cstr(a, "%s/include", prefix);
 	char* local_libs = cwfmt_cstr(a, "-L%s/lib", prefix);
@@ -49,7 +48,7 @@ void cwbuild_init_mingw(CwArena* a, const char* prefix) {
     cwbuild_prefix = (char*)prefix;
 
     // static char* flags[] = { "-g", "-Wall", "-Wextra", "-Werror", "-mwindows", "-static-libgcc", NULL };
-    static char* flags[] = { "-static-libgcc", NULL };
+    static char* flags[] = { "-mwindows", "-static-libgcc", NULL };
     cwbuild_flags = flags;
 
     static char* libs[] = { "-lcw", "-lmingw32", "-lwinmm", "-lgdi32", NULL };
@@ -69,10 +68,7 @@ void cwbuild_init_mingw(CwArena* a, const char* prefix) {
 	cwarena_push_ptr(a, NULL);
 }
 
-CwCmd cwbuild_compile_cmd(CwArena* a, const char* src) {
-    CwStr base_name = cwpath_get_base(cwpath_get_file(cwstr(src)));
-    char* dest = cwfmt_cstr(a, "%s/%w.o", cwbuild_dest, base_name);
-
+CwCmd cwbuild_compile_cmd(CwArena* a, const char* src, const char* dest) {
     CwCmd output = cwcmd_create(cwbuild_compiler, a, 0);
     cwbuild_push_flags(&output);
 
@@ -88,15 +84,13 @@ CwCmd cwbuild_compile_cmd(CwArena* a, const char* src) {
 }
 
 CwCmd cwbuild_link_cmd(CwArena* a, const char* dest, const char** objects) {
-    char* dest_path = cwfmt_cstr(a, "%s/%s", cwbuild_dest, dest);
-
     CwCmd output = cwcmd_create(cwbuild_compiler, a, 0);
 
 	cwcmd_push_arglist(&output, objects);
     cwcmd_push_arglist(&output, (const char**)cwbuild_flags);
     cwcmd_push_arglist(&output, (const char**)cwbuild_lib_dirs);
     cwcmd_push_arglist(&output, (const char**)cwbuild_libs);
-    cwcmd_push_args(&output, "-o", dest_path);
+    cwcmd_push_args(&output, "-o", dest);
 
     *a = output.mem;
     output.mem = cwarena_reserve(a, sizeof(void*));
@@ -105,11 +99,11 @@ CwCmd cwbuild_link_cmd(CwArena* a, const char* dest, const char** objects) {
 }
 
 CwCmd cwbuild_archive_cmd(CwArena* a, const char* dest, const char** objects) {
-    char* dest_path = cwfmt_cstr(a, "%s/%s", cwbuild_dest, dest);
+    // char* dest_path = cwfmt_cstr(a, "%s/%s", cwbuild_dest, dest);
 
     CwCmd output = cwcmd_create("ar", a, 0);
     cwcmd_push_arg(&output, "-rc");
-    cwcmd_push_arg(&output, dest_path);
+    cwcmd_push_arg(&output, dest);
 
 	cwcmd_push_arglist(&output, objects);
 
