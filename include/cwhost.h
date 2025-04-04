@@ -41,7 +41,7 @@ CwPipe cwhost_make_pipe();
 typedef struct CwCmd {
     const char** ptr;
     int size;
-    CwArena mem;
+    CwArena a;
 
     struct { int in; int out; int err; } io;
 } CwCmd;
@@ -54,29 +54,43 @@ void cwcmd_push_arglist(CwCmd* self, const char** arglist);
 #define cwcmd_push_args(self, ...) do { const char* args[] = {__VA_ARGS__, NULL}; cwcmd_push_arglist(self, args); } while(0);
 
 int cwcmd_run(CwCmd* self);
-
 int cwcmd_spawn(CwCmd* self);
 int cwcmd_await(int pid);
 
 // -- Buildtool Helpers --
 
-extern char*  cwbuild_prefix;
-extern char*  cwbuild_dest;
-extern char** cwbuild_flags;
-extern char** cwbuild_include_dirs;
-extern char** cwbuild_lib_dirs;
-extern char** cwbuild_libs;
+enum CwBuildTarget {
+    CWTARGET_AMD64_POSIX = 0,
+    CWTARGET_AMD64_MINGW32,
+    CWTARGET_WASM32,
+};
 
-extern bool cwbuild_debug_symbols;
-extern bool cwbuild_pedantic;
-extern bool cwbuild_strict;
+typedef struct CwCompile {
+    enum CwBuildTarget target;
+    const char* src;
+    const char* dest;
 
-void cwbuild_init(CwArena* a, const char* prefix);
-void cwbuild_init_mingw(CwArena* a, const char* prefix);
-void cwbuild_init_wasm(CwArena* a, const char* prefix);
+    struct { CwArena a; char** ptr; } include_paths;
+    struct { CwArena a; char** ptr; } flags;
+} CwCompile;
 
-CwCmd cwbuild_compile_cmd(CwArena* a, const char* src, const char* dest);
-CwCmd cwbuild_link_cmd(CwArena* a, const char* dest_path, const char** objects);
+CwCompile cwcompile_create(CwArena* a, const char* src, const char* dest);
+
+typedef struct CwLink {
+    enum CwBuildTarget target;
+    const char* dest;
+
+    struct { CwArena a; char** ptr; } lib_paths;
+    struct { CwArena a; char** ptr; } libs;
+    struct { CwArena a; char** ptr; } objects;
+    struct { CwArena a; char** ptr; } flags;
+} CwLink;
+
+CwLink cwlink_create(CwArena* a, const char* dest);
+
+CwCmd cwcompile_cmd(CwArena* a, CwCompile* params);
+CwCmd cwlink_cmd(CwArena* a, CwLink* params);
+
 CwCmd cwbuild_archive_cmd(CwArena* a, const char* dest_path, const char** objects);
 
 // -- Logging --

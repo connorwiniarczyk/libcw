@@ -54,11 +54,9 @@ CwFuture* cwtimeout_ms(CwArena a, int64_t ms) {
     return cwfuture_new(a, poll_timeout_ms, self);
 }
 
-
 void cwsleep_ms(int ms) {
     usleep(ms * 1000);
 }
-
 
 CwPipe cwhost_make_pipe() {
     CwPipe output = { .input = -1, .output = -1 };
@@ -77,13 +75,12 @@ CwCmd cwcmd_create(const char* cmd, CwArena* a, int max_args) {
     CwCmd output;
 	cwarena_align_to(a, alignof(char*));
 
-
     // output.mem = cwarena_reserve(a, sizeof(char*) * max_args);
  
-	if (max_args <= 0) output.mem = cwarena_reserve_all(a);
-	else output.mem = cwarena_reserve(a, sizeof(char*) * max_args);
+	if (max_args <= 0) output.a = cwarena_reserve_all(a);
+	else output.a = cwarena_reserve(a, sizeof(char*) * max_args);
 
-    output.ptr = cwnew(&output.mem, char*);
+    output.ptr = cwnew(&output.a, char*);
     output.ptr[0] = cmd;
     output.size = 1;
 
@@ -95,7 +92,7 @@ CwCmd cwcmd_create(const char* cmd, CwArena* a, int max_args) {
 }
 
 void cwcmd_push_arg(CwCmd* self, const char* arg) {
-    *(const char**)(cwnew(&self -> mem, char*)) = (char*)(arg);
+    *(const char**)(cwnew(&self -> a, char*)) = (char*)(arg);
     self -> size += 1;
 }
 
@@ -108,7 +105,7 @@ void cwcmd_push_arglist(CwCmd* self, const char** arglist) {
 int cwcmd_spawn(CwCmd* self) {
     // terminate the array with a NULL pointer
     if (self -> ptr[self -> size - 1] != NULL) {
-    	(void)(cwnew(&self -> mem, char*));
+        cwarena_push(&self -> a, char*, NULL);
     }
 
 	const char* name = self -> ptr[0];
@@ -138,7 +135,7 @@ int cwcmd_await(int pid) {
 int cwcmd_run(CwCmd* self) {
     // terminate the array with a NULL pointer
     if (self -> ptr[self -> size - 1] != NULL) {
-    	(void)(cwnew(&self -> mem, char*));
+        cwarena_push(&self -> a, char*, NULL);
     }
 
 	const char* name = self -> ptr[0];

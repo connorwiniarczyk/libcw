@@ -23,28 +23,37 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 CwArena cwarena_reserve_all(CwArena* self);
 
 void* cwarena_align_to(CwArena* self, ptrdiff_t align);
-
 void* cwarena_push_byte(CwArena* self, uint8_t byte);
 void* cwarena_push_ptr(CwArena* self, const void* ptr);
-
-void* cwarena_push_list(CwArena* self, const void** data);
-#define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
 
 int cwarena_allocated(CwArena self, void* start);
 int cwarena_remaining(CwArena self);
 
 void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), alignof(t), 1)
-
 #define cwarena_push(a, t, value) do { *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = value; } while(0)
 
-#define cwarena_push_array(a, t, ...) do { \
-    t values[] = { __VA_ARGS__ };    \
-    int length = sizeof(values) / sizeof(values[0]); \
-    for (int i=0; i < length; i++) {  \
-        *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = values[i];  \
-	}  \
-} while(0)
+#define cwarray_push(a, type, ...) do {                        \
+	static type list[] = { __VA_ARGS__ };                      \
+	const int size = sizeof(list) / sizeof(type);              \
+	for (int i=0; i<size; i++) {                               \
+    	type* n = cwalloc(a, sizeof(type), alignof(type), 1);  \
+    	*n = list[i];                                          \
+	}                                                          \
+} while (0);                                                
+
+#define cwarray_push_incr(a, i, type, ...) do {                \
+	static type list[] = { __VA_ARGS__ };                      \
+	const int size = sizeof(list) / sizeof(type);              \
+	for (int i=0; i<size; i++) {                               \
+    	type* n = cwalloc(a, sizeof(type), alignof(type), 1);  \
+    	*n = list[i];                                          \
+		*i += 1;                                               \
+	}                                                          \
+} while (0);                                                
+
+// void* cwarena_push_list(CwArena* self, const void** data);
+// #define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
 
 // -- Pool Allocator --
 typedef struct CwPool {
@@ -102,10 +111,10 @@ char* cwfmt_cstr(CwArena* a, const char* fmt_string, ...);
     arr.mem = arena;                  \
 } while(0)
 
-#define cwarray_push(arr, type, value) do {  \
-    *(type*)(cwnew(&arr.mem, type)) = value; \
-    arr.size += 1;                           \
-} while(0)
+// #define cwarray_push(arr, type, value) do {  
+//     *(type*)(cwnew(&arr.mem, type)) = value; 
+//     arr.size += 1;                           
+// } while(0)
 
 
 // -- Ring Buffer --
