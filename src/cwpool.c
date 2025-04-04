@@ -1,8 +1,18 @@
 #include <cwcore.h>
-#include <stdalign.h>
+#include <cwhost.h>
 #include <string.h>
 
-#include <cwhost.h>
+#include <stdalign.h>
+
+// void* memset(void* dest, int val, size_t len) {
+//     uint8_t* ptr = (uint8_t*)(dest);
+//     while (len-- > 0) {
+//         *ptr++ = val;
+//     }
+
+//     return dest;
+// }
+
 
 typedef struct Chunk {
 	struct Chunk* next;

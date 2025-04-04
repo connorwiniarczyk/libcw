@@ -1,9 +1,19 @@
 #include <cwcore.h>
 #include <cwhost.h>
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+void* memset(void* dest, int val, size_t len);
+
+// void* memset(void* dest, int val, size_t len) {
+//     uint8_t* ptr = (uint8_t*)(dest);
+//     while (len-- > 0) {
+//         *ptr++ = val;
+//     }
+
+//     return dest;
+// }
+
+// #include <stdlib.h>
+// #include <stdio.h>
 
 void* cwarena_align_to(CwArena* a, ptrdiff_t align) {
 	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);

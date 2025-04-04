@@ -35,6 +35,14 @@ lib  = lib.mingw
 srcs += src/host/windows.c
 srcs += src/host/windows_log.c
 
+else ifeq ($(host), wasm)
+CC = clang
+cc_flags += --target=wasm32
+cc_flags += --no-standard-libraries
+
+build = build.wasm
+lib  = lib.wasm
+
 endif
 
 objs += $(srcs:src/%.c=$(build)/%.o)

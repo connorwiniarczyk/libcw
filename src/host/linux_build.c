@@ -6,6 +6,7 @@ char*  cwbuild_compiler;
 char*  cwbuild_prefix;
 char*  cwbuild_dest;
 char** cwbuild_flags;
+char** cwbuild_link_flags;
 char** cwbuild_include_dirs;
 char** cwbuild_lib_dirs;
 char** cwbuild_libs;
@@ -41,6 +42,38 @@ void cwbuild_init(CwArena* a, const char* prefix) {
 	cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
 	cwarena_push_ptr(a, local_libs);
 	cwarena_push_ptr(a, NULL);
+}
+
+void cwbuild_init_wasm(CwArena* a, const char* prefix) {
+    cwbuild_compiler = "clang";
+    cwbuild_prefix = (char*)prefix;
+
+    cwbuild_flags = cwarena_align_to(a, alignof(char**));
+    cwarena_push_ptr(a, "--target=wasm32");
+    cwarena_push_ptr(a, "--no-standard-libraries");
+    cwarena_push_ptr(a, NULL);
+
+    cwbuild_link_flags = cwarena_align_to(a, alignof(char**));
+    cwarena_push_ptr(a, "-Wl,--export-table");
+    cwarena_push_ptr(a, "-Wl,--no-entry");
+    cwarena_push_ptr(a, "-Wl,--allow-undefined");
+    cwarena_push_ptr(a, "-Wl,--export=main");
+    cwarena_push_ptr(a, NULL);
+
+    cwbuild_libs = NULL;
+
+	char* local_headers = cwfmt_cstr(a, "%s/include", prefix);
+	char* local_libs = cwfmt_cstr(a, "-L%s/lib.wasm", prefix);
+
+	cwbuild_include_dirs = cwarena_align_to(a, alignof(char**));
+	cwarena_push_ptrs(a, "-I", "src", "-I", "build.wasm", "-I", "include");
+	cwarena_push_ptrs(a, "-I", local_headers);
+	cwarena_push_ptr(a, NULL);
+
+	cwbuild_lib_dirs = cwarena_align_to(a, alignof(char**));
+	cwarena_push_ptr(a, local_libs);
+	cwarena_push_ptr(a, NULL);
+
 }
 
 void cwbuild_init_mingw(CwArena* a, const char* prefix) {
@@ -88,6 +121,7 @@ CwCmd cwbuild_link_cmd(CwArena* a, const char* dest, const char** objects) {
 
 	cwcmd_push_arglist(&output, objects);
     cwcmd_push_arglist(&output, (const char**)cwbuild_flags);
+    cwcmd_push_arglist(&output, (const char**)cwbuild_link_flags);
     cwcmd_push_arglist(&output, (const char**)cwbuild_lib_dirs);
     cwcmd_push_arglist(&output, (const char**)cwbuild_libs);
     cwcmd_push_args(&output, "-o", dest);

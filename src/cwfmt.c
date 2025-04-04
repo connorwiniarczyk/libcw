@@ -1,5 +1,6 @@
 #include <cwcore.h>
-#include <math.h>
+#include <cwhost.h>
+// #include <math.h>
 
 static void push_char(CwArena* a, char c) {
     char* next = cwalloc(a, 1, 1, 1);
@@ -58,31 +59,37 @@ CwStr cwfmt_dec(CwArena* a, int value, int digits) {
 }
 
 CwStr cwfmt_float(CwArena* a, float value, int precision) {
-    char* output = (char*)(a -> start);
+    cwpanic("TODO: floor() requires the standard library");
+    return cwstr_empty();
 
-    if (value < 0.0) {
-        push_char(a, '-');
-        value *= -1;
-    }
+    (void)(a);
+    (void)(value);
+    (void)(precision);
+ //    char* output = (char*)(a -> start);
 
-    int whole = (int)(floor(value));
-    (void)(cwfmt_dec(a, whole, 0));
+ //    if (value < 0.0) {
+ //        push_char(a, '-');
+ //        value *= -1;
+ //    }
 
-    push_char(a, '.');
-	float fraction = value - (float)(whole);
+ //    int whole = (int)(floor(value));
+ //    (void)(cwfmt_dec(a, whole, 0));
 
-	int i;
-    for (i=0; i<precision; i++) {
-        fraction *= 10;
-        int digit = (int)(floor(fraction));
-        fraction -= digit;
-        push_char(a, digit + '0');
-    }
+ //    push_char(a, '.');
+	// float fraction = value - (float)(whole);
 
-    if (i == 0) push_char(a, '0');
+	// int i;
+ //    for (i=0; i<precision; i++) {
+ //        fraction *= 10;
+ //        int digit = (int)(floor(fraction));
+ //        fraction -= digit;
+ //        push_char(a, digit + '0');
+ //    }
 
-	ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
-    return (CwStr){ output, size };
+ //    if (i == 0) push_char(a, '0');
+
+	// ptrdiff_t size = (intptr_t)(a -> start) - (intptr_t)(output);
+ //    return (CwStr){ output, size };
 }
 
 bool is_digit(char c) { return c >= '0' && c <= '9'; };

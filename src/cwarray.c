@@ -1,7 +1,4 @@
 #include <cwutils/cwarray.h>
-#include <assert.h>
-#include <string.h>
-#include <stdarg.h>
 
 void* cwslice_get(CwSlice* self, int index) {
     if (index >= self -> size || index < 0) return NULL;

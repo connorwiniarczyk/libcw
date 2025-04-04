@@ -1,9 +1,16 @@
 #include <cwcore.h>
-#include <assert.h>
-#include <string.h>
+#include <cwhost.h>
+
+// #include <if .h {} else {cwpanic("failed assertion");}>
+// #include <string.h>
 
 CwStr cwstr(const char* cstr) {
-    return (CwStr){ .ptr = (char*)(cstr), .size = strlen(cstr) };
+    const char* ptr;
+    for (ptr = cstr; *ptr != '\0'; ptr += 1);
+
+    int size = ptr - cstr;
+
+    return (CwStr){ .ptr = (char*)(cstr), .size = size };
 }
 
 CwStr cwstr_empty() {
@@ -37,9 +44,9 @@ bool cwstr_contains(CwStr self, char c) {
 }
 
 CwStr cwstr_substr(CwStr self, int start, int end) {
-    assert(start >= 0);
-    assert(end >= start);
-    assert(end <= self.size);
+    if (start >= 0) {} else {cwpanic("failed assertion");};
+    if (end >= start) {} else {cwpanic("failed assertion");};
+    if (end <= self.size) {} else {cwpanic("failed assertion");};
 
     return (CwStr) { self.ptr + start, end - start };
 
@@ -65,7 +72,6 @@ int cwstr_find_last(CwStr input, char c) {
 
 int cwstr_parse_int(CwStr input) {
     int output = 0;
-    int digit = 0;
 
     bool negative = false;
     if (input.size > 0 && input.ptr[0] == '-') {
@@ -75,10 +81,9 @@ int cwstr_parse_int(CwStr input) {
 
     while (input.size > 0) {
         char next = input.ptr[input.size - 1];
-        assert(next >= '0' && next <= '9');
+        if (next >= '0' && next <= '9') {} else {cwpanic("failed assertion");};
 
         output += (next - '0');
-        digit += 1;
         input = cwstr_substr(input, 0, input.size - 1);
     }
 
@@ -99,7 +104,7 @@ CwStr cwstr_split(CwStr* self, char c) {
 
 CwStr cwpath_get_file(CwStr input) {
 	int separator = cwstr_find_last(input, '/');
-	assert(separator <= input.size);
+	if (separator <= input.size) {} else {cwpanic("failed assertion");};
 
 	if (separator < 0) return input;
 	if (separator == input.size) return cwstr_empty();
@@ -110,7 +115,7 @@ CwStr cwpath_get_file(CwStr input) {
 
 CwStr cwpath_get_dir(CwStr input) {
 	int separator = cwstr_find_last(input, '/');
-	assert(separator <= input.size);
+	if (separator <= input.size) {} else {cwpanic("failed assertion");};
 
 	if (separator < 1) return cwstr_empty();
 	if (separator == input.size) return input;
