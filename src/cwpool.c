@@ -1,8 +1,9 @@
 #include <cwcore.h>
 #include <cwhost.h>
-#include <string.h>
 
 #include <stdalign.h>
+
+void* memset(void* dest, int val, size_t len);
 
 // void* memset(void* dest, int val, size_t len) {
 //     uint8_t* ptr = (uint8_t*)(dest);

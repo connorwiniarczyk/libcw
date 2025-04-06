@@ -65,18 +65,19 @@ enum CwBuildTarget {
     CWTARGET_WASM32,
 };
 
-typedef struct CwCompile {
+typedef struct CwCompileConfig {
     enum CwBuildTarget target;
     const char* src;
     const char* dest;
 
     struct { CwArena a; char** ptr; } include_paths;
     struct { CwArena a; char** ptr; } flags;
-} CwCompile;
+} CwCompileConfig;
 
-CwCompile cwcompile_create(CwArena* a, const char* src, const char* dest);
+CwCompileConfig cwcompile_config(CwArena* a, const char* src, const char* dest);
+CwCmd cwcompile_cmd(CwArena* a, CwCompileConfig config);
 
-typedef struct CwLink {
+typedef struct CwLinkConfig {
     enum CwBuildTarget target;
     const char* dest;
 
@@ -84,12 +85,10 @@ typedef struct CwLink {
     struct { CwArena a; char** ptr; } libs;
     struct { CwArena a; char** ptr; } objects;
     struct { CwArena a; char** ptr; } flags;
-} CwLink;
+} CwLinkConfig;
 
-CwLink cwlink_create(CwArena* a, const char* dest);
-
-CwCmd cwcompile_cmd(CwArena* a, CwCompile* params);
-CwCmd cwlink_cmd(CwArena* a, CwLink* params);
+CwLinkConfig cwlink_config(CwArena* a, const char* dest);
+CwCmd cwlink_cmd(CwArena* a, CwLinkConfig config);
 
 CwCmd cwbuild_archive_cmd(CwArena* a, const char* dest_path, const char** objects);
 

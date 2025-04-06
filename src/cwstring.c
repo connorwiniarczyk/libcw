@@ -1,9 +1,6 @@
 #include <cwcore.h>
 #include <cwhost.h>
 
-// #include <if .h {} else {cwpanic("failed assertion");}>
-// #include <string.h>
-
 CwStr cwstr(const char* cstr) {
     const char* ptr;
     for (ptr = cstr; *ptr != '\0'; ptr += 1);
@@ -92,9 +89,67 @@ int cwstr_parse_int(CwStr input) {
     return output;
 }
 
+double cwparse_whole_part(CwStr input) {
+    double output = 0.0;
+    double power = 1.0;
+    while (input.size) {
+		char next = input.ptr[input.size - 1];
+		if (next < '0' || next > '9') {
+    		cwpanic("tried to parse invalid character"); 
+		}
+
+		output += ((double)(next - '0') * power);
+		power *= 10;
+		input.size -= 1;
+    }
+
+    return output;
+}
+
+double cwparse_fraction_part(CwStr input) {
+    double output = 0.0;
+    double power = 1.0;
+    while (input.size) {
+		char next = input.ptr[0];
+		if (next < '0' || next > '9') {
+    		cwpanic("tried to parse invalid character"); 
+		}
+
+		output += ((double)(next - '0') * power);
+		power *= 0.1;
+		input = cwstr_substr(input, 1, input.size);
+    }
+
+    return output;
+}
+
+double cwparse_double(CwStr input) {
+    int sign = 1;
+    if (input.size >= 1 && input.ptr[0] == '-') {
+        sign = -1;
+        input = cwstr_substr(input, 1, input.size);
+    }
+
+    CwStr whole_part = cwstr_split(&input, '.');
+    CwStr fraction_part = input;
+
+    cwlog("%w", whole_part);
+    cwlog("%w", fraction_part);
+
+	double output = 0.0;
+	output += cwparse_whole_part(whole_part);
+	output += cwparse_fraction_part(fraction_part);
+
+	return output * sign;
+}
+
 CwStr cwstr_split(CwStr* self, char c) {
 	int index = cwstr_find(*self, c);
-	if (index < 0) return cwstr_empty();
+	if (index < 0) {
+    	CwStr output = *self;
+    	*self = cwstr_empty();
+    	return output;
+	}
 
 	CwStr output = cwstr_substr(*self, 0, index);
 	*self = cwstr_substr(*self, index + 1, self -> size);
@@ -140,5 +195,4 @@ CwStr cwpath_get_ext(CwStr input) {
 	if (separator >= filename.size) return cwstr_empty();
 
 	return cwstr_substr(filename, separator + 1, filename.size);
-
 }

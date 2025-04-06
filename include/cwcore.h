@@ -7,6 +7,9 @@
 #include <stdarg.h>
 #include <stdalign.h>
 
+void* memset(void* dest, int val, size_t len);
+void* memcpy(void* dest, const void* src, size_t len);
+
 // -- Arena Allocator --
 
 typedef struct CwArena {
@@ -33,6 +36,33 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), alignof(t), 1)
 #define cwarena_push(a, t, value) do { *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = value; } while(0)
 
+// void* cwarena_push_list(CwArena* self, const void** data);
+// #define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
+
+// -- Pool Allocator --
+typedef struct CwPool {
+    void* next_free;
+    size_t element_size;
+} CwPool;
+
+CwPool cwpool_create(CwArena* a, size_t element_size, int size);
+
+void* cwpool_alloc(CwPool* self);
+void  cwpool_free(CwPool* self, void* ptr);
+
+// -- Dynamic Arrays --
+typedef struct CwArray {
+    void* ptr;
+    int stride;
+    CwArena a;
+} CwArray;
+
+CwArray cwarray(void* ptr, int stride, CwArena a);
+#define cwarray_cast(v) cwarray(v.ptr, sizeof(v.ptr[0]), v.a)
+
+int cwarray_len(CwArray self);
+CwArray cwarray_clone(CwArena* a, CwArray self);
+
 #define cwarray_push(a, type, ...) do {                        \
 	static type list[] = { __VA_ARGS__ };                      \
 	const int size = sizeof(list) / sizeof(type);              \
@@ -52,20 +82,6 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 	}                                                          \
 } while (0);                                                
 
-// void* cwarena_push_list(CwArena* self, const void** data);
-// #define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
-
-// -- Pool Allocator --
-typedef struct CwPool {
-    void* next_free;
-    size_t element_size;
-} CwPool;
-
-CwPool cwpool_create(CwArena* a, size_t element_size, int size);
-
-void* cwpool_alloc(CwPool* self);
-void  cwpool_free(CwPool* self, void* ptr);
-
 // -- Strings -- 
 typedef struct CwStr {
 	char* ptr;
@@ -80,6 +96,7 @@ int cwstr_find(CwStr input, char c);
 int cwstr_find_last(CwStr input, char c);
 
 int cwstr_parse_int(CwStr input);
+double cwparse_double(CwStr input);
 
 CwStr cwstr_substr(CwStr self, int start, int end);
 CwStr cwstr_split(CwStr* self, char c);
@@ -101,20 +118,6 @@ CwStr cwfmt(CwArena* a, const char* fmt_string, ...);
 
 char* cwfmt_cstr(CwArena* a, const char* fmt_string, ...);
 
-// -- Dynamic Arrays --
-
-#define cwarray_type(t) struct cwarray_ ## t { t* ptr; int size; CwArena mem; }
-
-#define cwarray_init(arr, type, arena) do { \
-    arr.ptr = (void*)(cwalloc(&(arena), sizeof(type), alignof(type), 0));   \
-    arr.size = 0;                     \
-    arr.mem = arena;                  \
-} while(0)
-
-// #define cwarray_push(arr, type, value) do {  
-//     *(type*)(cwnew(&arr.mem, type)) = value; 
-//     arr.size += 1;                           
-// } while(0)
 
 
 // -- Ring Buffer --

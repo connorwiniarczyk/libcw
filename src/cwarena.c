@@ -1,19 +1,16 @@
 #include <cwcore.h>
 #include <cwhost.h>
 
-void* memset(void* dest, int val, size_t len);
+#ifdef CWNOSTDLIB
+void* memset(void* dest, int val, size_t len) {
+    uint8_t* ptr = (uint8_t*)(dest);
+    while (len-- > 0) {
+        *ptr++ = val;
+    }
 
-// void* memset(void* dest, int val, size_t len) {
-//     uint8_t* ptr = (uint8_t*)(dest);
-//     while (len-- > 0) {
-//         *ptr++ = val;
-//     }
-
-//     return dest;
-// }
-
-// #include <stdlib.h>
-// #include <stdio.h>
+    return dest;
+}
+#endif
 
 void* cwarena_align_to(CwArena* a, ptrdiff_t align) {
 	ptrdiff_t padding = -(uintptr_t)(a -> start) & (align - 1);
@@ -98,4 +95,37 @@ CwArena cwarena_reserve_all(CwArena* self) {
 
 int cwarena_remaining(CwArena self) {
 	return (intptr_t)(self.end) - (intptr_t)(self.start);
+}
+
+// array stuff
+
+int cwarray_len(CwArray self) {
+    int size = (intptr_t)(self.a.start) - (intptr_t)(self.ptr);
+    if (size % self.stride != 0) cwpanic("invalid array length");
+
+    return size / self.stride;
+}
+
+CwArray cwarray(void* ptr, int stride, CwArena a) {
+    return (CwArray){ ptr, stride, a };
+}
+
+CwArray cwarray_clone(CwArena* a, CwArray self) {
+    const int align = 8;
+    CwArray output;
+    output.ptr = cwarena_align_to(a, align);
+
+	intptr_t src = (intptr_t)(self.ptr);
+    while ((intptr_t)(self.ptr) < (intptr_t)(self.a.start)) {
+        void* next = cwalloc(a, self.stride, align, 1);
+        memcpy(next, self.ptr, self.stride);
+
+        src += self.stride;
+        self.ptr = (void*)(src);
+    }
+
+    output.stride = self.stride;
+    output.a = cwarena_empty();
+
+    return output;
 }

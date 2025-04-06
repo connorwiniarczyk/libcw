@@ -10,7 +10,6 @@ cc_flags += -Wall -Wextra -Werror
 
 srcs += src/cwarena.c
 srcs += src/cwpool.c
-srcs += src/cwarray.c
 srcs += src/cwstring.c
 srcs += src/cwfmt.c
 srcs += src/cwgeometry.c
@@ -38,7 +37,7 @@ srcs += src/host/windows_log.c
 else ifeq ($(host), wasm)
 CC = clang
 cc_flags += --target=wasm32
-cc_flags += --no-standard-libraries
+cc_flags += -DCWNOSTDLIB
 
 build = build.wasm
 lib  = lib.wasm
