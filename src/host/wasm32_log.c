@@ -1,17 +1,22 @@
 #include <cwcore.h>
 #include <cwhost.h>
-#include <unistd.h>
 
 static CwLogger logger = {0};
 
-static void print_logger(void* data, CwStr message) {
+extern void console_log(char* str, int size);
+static void log_handler(void* data, CwStr message) {
+	console_log(message.ptr, message.size);
     (void)(data);
-    write(2, message.ptr, message.size);
-	write(2, "\n", 1);
 }
 
+// static void print_logger(void* data, CwStr message) {
+//     (void)(data);
+//     write(2, message.ptr, message.size);
+// 	write(2, "\n", 1);
+// }
+
 void cwlogger_init(CwArena* a, int buffer_size) {
-	logger.log = print_logger;
+	logger.log = log_handler;
 	logger.data = NULL;
 	logger.fmt_buffer = cwarena_reserve(a, buffer_size);
 }

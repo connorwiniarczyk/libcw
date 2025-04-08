@@ -1,5 +1,5 @@
 prefix  ?= $(HOME)/.local
-host    ?= linux
+host    ?= wasm
 
 MAKEFLAGS += --no-print-directory
 
@@ -41,6 +41,8 @@ cc_flags += -DCWNOSTDLIB
 
 build = build.wasm
 lib  = lib.wasm
+
+srcs += src/host/wasm32_log.c
 
 endif
 

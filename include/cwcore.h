@@ -36,9 +36,6 @@ void* cwalloc(CwArena* a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count);
 #define cwnew(a, t) cwalloc(a, sizeof(t), alignof(t), 1)
 #define cwarena_push(a, t, value) do { *((t*)(cwalloc(a, sizeof(t), alignof(t), 1))) = value; } while(0)
 
-// void* cwarena_push_list(CwArena* self, const void** data);
-// #define cwarena_push_ptrs(a, ...) do { const void* list[] = { __VA_ARGS__, NULL }; cwarena_push_list(a, list); } while(0);
-
 // -- Pool Allocator --
 typedef struct CwPool {
     void* next_free;
@@ -117,8 +114,6 @@ CwStr cwfmt_vargs(CwArena* a, const char* fmt_string, va_list args);
 CwStr cwfmt(CwArena* a, const char* fmt_string, ...);
 
 char* cwfmt_cstr(CwArena* a, const char* fmt_string, ...);
-
-
 
 // -- Ring Buffer --
 typedef struct CwRingBuffer {
