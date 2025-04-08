@@ -16,36 +16,36 @@ my go to tool for just about every problem.
 #include <cwhost.h>
 
 int main() {
-	// create an arena 2kB wide with a call to malloc
-	CwArena a = cwarena_create(malloc, 1 << 11);
+    // create an arena 2kB wide with a call to malloc
+    CwArena a = cwarena_create(malloc, 1 << 11);
 
-	// init the global logger with a buffer 256 bytes wide
-	cwlog_init(&a, 1 << 8);
+    // init the global logger with a buffer 256 bytes wide
+    cwlog_init(&a, 1 << 8);
 
-	// read the contents of input.csv into the arena
-	cwlog("reading input.csv");
-	CwStr file = cwhost_read_file(&a, "input.csv");
-	if (file.size < 1) cwpanic("could not open file");
+    // read the contents of input.csv into the arena
+    cwlog("reading input.csv");
+    CwStr file = cwhost_read_file(&a, "input.csv");
+    if (file.size < 1) cwpanic("could not open file");
 
-	// strings in libcw (CwStr) store size as a struct field
-	// instead of using null terminators. This makes them considerably
-	// easier to work with
+    // strings in libcw (CwStr) store size as a struct field
+    // instead of using null terminators. This makes them considerably
+    // easier to work with
 
-	int i = 0;
-	int j = 0;
+    int i = 0;
+    int j = 0;
 
-	while (file.size) {
-    	CwStr line = cwstr_split(&file, '\n');
-    	while (line.size) {
-    		CwStr item = cwstr_split(&line, ',');
-    		cwlog("line %d, column %d: %w", i, j, item);
-    		j += 1;
-    	}
-		i += 1;
-		cwlog("\n");
-	}
+    while (file.size) {
+        CwStr line = cwstr_split(&file, '\n');
+        while (line.size) {
+            CwStr item = cwstr_split(&line, ',');
+            cwlog("line %d, column %d: %w", i, j, item);
+            j += 1;
+        }
+        i += 1;
+        cwlog("\n");
+    }
 
-	cwlog("done");
+    cwlog("done");
 }
 ```
 
