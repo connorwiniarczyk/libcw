@@ -1,5 +1,5 @@
 prefix  ?= $(HOME)/.local
-host    ?= wasm
+target  ?= wasm
 
 MAKEFLAGS += --no-print-directory
 
@@ -15,7 +15,7 @@ srcs += src/cwfmt.c
 srcs += src/cwgeometry.c
 srcs += src/cwfuture.c
 
-ifeq ($(host), linux)
+ifeq ($(target), linux)
 build = build
 lib = lib
 
@@ -26,7 +26,7 @@ srcs += src/host/linux_build.c
 srcs += src/host/linux_socket.c
 
 
-else ifeq ($(host), windows)
+else ifeq ($(target), windows)
 CC = x86_64-w64-mingw32-gcc
 build = build.mingw
 lib  = lib.mingw
@@ -34,7 +34,7 @@ lib  = lib.mingw
 srcs += src/host/windows.c
 srcs += src/host/windows_log.c
 
-else ifeq ($(host), wasm)
+else ifeq ($(target), wasm)
 CC = clang
 cc_flags += --target=wasm32
 cc_flags += -DCWNOSTDLIB
