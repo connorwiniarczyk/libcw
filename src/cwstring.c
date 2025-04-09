@@ -67,7 +67,7 @@ int cwstr_find_last(CwStr input, char c) {
 	return output;
 }
 
-int cwstr_parse_int(CwStr input) {
+int cwparse_int(CwStr input) {
     int output = 0;
 
     bool negative = false;

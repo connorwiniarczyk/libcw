@@ -26,6 +26,8 @@ CwArena cwarena_reserve(CwArena* self, ptrdiff_t size);
 CwArena cwarena_reserve_all(CwArena* self);
 
 void* cwarena_align_to(CwArena* self, ptrdiff_t align);
+#define cwarray_begin(a, type) cwarena_align_to(a, alignof(type))
+
 void* cwarena_push_byte(CwArena* self, uint8_t byte);
 void* cwarena_push_ptr(CwArena* self, const void* ptr);
 
@@ -92,7 +94,7 @@ CwStr cwstr_builder(CwArena* a);
 int cwstr_find(CwStr input, char c);
 int cwstr_find_last(CwStr input, char c);
 
-int cwstr_parse_int(CwStr input);
+int cwparse_int(CwStr input);
 double cwparse_double(CwStr input);
 
 CwStr cwstr_substr(CwStr self, int start, int end);
